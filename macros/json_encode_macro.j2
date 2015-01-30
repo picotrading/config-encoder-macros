@@ -1,0 +1,77 @@
+{#
+ # Jinja2 macro which converts Python data structure to JSON format
+ #}
+
+{%- macro json_encode(item, level=0, indent="  ", detect_nums=false) %}
+  {%- if item is mapping %}
+    {#- The item is a dict -#}
+
+    {{ "{" }}
+
+    {%- if item | length > 0 -%}
+      {{ "\n" }}
+    {%- endif %}
+
+    {%- for key, val in item.iteritems() | sort -%}
+      {{ indent * (level+1) ~ '"' ~ key ~ '": '}}{{ json_encode(
+        val, level=level+1, indent=indent, detect_nums=detect_nums) }}
+
+      {%- if loop.last -%}
+        {{ "\n" }}
+      {%- else -%}
+        {{ ",\n" }}
+      {%- endif %}
+    {%- endfor -%}
+
+    {%- if item | length > 0 -%}
+      {{ indent * level ~ "}" }}
+    {%- else -%}
+      {{ "}" }}
+    {%- endif %}
+
+  {%- elif item == "null" or item is number or (detect_nums and
+      (
+        item | int | string == item or
+        item | float | string == item)) or
+      item == 'true' or
+      item == 'True' or
+      item == 'false' or
+      item == 'False'%}
+
+    {#- Item is a value of a number, null or boolean -#}
+
+    {{ item }}
+
+  {%- elif item is string %}
+    {#- The item is a string -#}
+
+    {{ '"' ~ item ~ '"' }}
+
+  {%- else %}
+    {#- The item is a list -#}
+
+    {{ "[" }}
+
+    {%- if item | length > 0 -%}
+        {{ "\n" }}
+    {%- endif %}
+
+    {%- for val in item -%}
+      {{ indent * (level+1) }}{{ json_encode(
+        val, level=level+1, indent=indent, detect_nums=detect_nums) }}
+
+      {%- if loop.last -%}
+        {{ "\n" }}
+      {%- else -%}
+        {{ ",\n" }}
+      {%- endif %}
+    {%- endfor -%}
+
+    {%- if item | length > 0 -%}
+      {{ indent * level ~ "]" }}
+    {%- else -%}
+      {{ "]" }}
+    {%- endif %}
+
+  {%- endif %}
+{% endmacro %}

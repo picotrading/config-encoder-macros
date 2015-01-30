@@ -1,0 +1,76 @@
+{#
+ # Jinja2 macro which converts Python data structure to YAML format
+ #}
+
+{%- macro yaml_encode(
+  item,
+  level=0,
+  skip_indent=false,
+  quotation_mark='"',
+  indention_unit='  ',
+  detect_nums=false) %}
+
+  {%- if item is mapping %}
+    {#- The item is a dict #}
+    {%- for key, value in item.iteritems() | sort -%}
+      {%- if skip_indent and loop.first -%}
+        {{ ' ' }}
+      {%- else -%}
+        {{ indention_unit * level }}
+      {%- endif -%}
+
+      {{ key }}:
+
+      {%- if value is not string and value is not number -%}
+        {{ "\n" }}
+      {%- endif -%}
+
+      {{ yaml_encode(
+           value,
+           level=level+1,
+           quotation_mark=quotation_mark,
+           indention_unit=indention_unit,
+           detect_nums=detect_nums) }}
+    {%- else -%}
+      {{ indention_unit * level + '{ }\n' }}
+    {%- endfor %}
+
+  {%- elif item is number or
+      (detect_nums and
+      (
+        item | int | string == item or
+        item | float | string == item)) or
+      item == 'true' or
+      item == 'True' or
+      item == 'false' or
+      item == 'False' %}
+
+    {#- The item is a number or boolean -#}
+    {{ ' ' ~ item | lower ~ "\n" }}
+
+  {%- elif item is string %}
+    {#- The item is a string -#}
+    {{ ' ' +
+       quotation_mark +
+       item | replace(quotation_mark, '\\' + quotation_mark) +
+       quotation_mark + "\n" }}
+
+  {%- else %}
+    {#- The item is a list #}
+    {%- for n in item -%}
+      {{ indention_unit * level }}-
+      {%- if n is not string and
+             n is not number and
+             n is not mapping -%}
+        {{ "\n" }}
+      {%- endif -%}
+      {{ yaml_encode(
+           n,
+           level=level+1,
+           skip_indent=true,
+           quotation_mark=quotation_mark,
+           indention_unit=indention_unit,
+           detect_nums=detect_nums) }}
+    {%- endfor %}
+  {%- endif %}
+{% endmacro %}

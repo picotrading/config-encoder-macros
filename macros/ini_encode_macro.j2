@@ -1,0 +1,32 @@
+{#
+ # Jinja2 macro which converts Python data structure to INI format
+ #}
+
+{%- macro ini_encode(
+      data,
+      uppercase_keys=false,
+      quote="",
+      delimiter="=",
+      first=[]) %}
+
+  {#- First process vars without a section #}
+  {%- for key, value in data.iteritems() | sort %}
+    {%- if value is not mapping %}
+      {%- if first | length == 0 -%}
+        {{ "\n" }}
+        {%- if first.append(1) %}{% endif %}
+      {%- endif -%}
+      {{ (key | upper if uppercase_keys else key) ~ delimiter ~ quote ~ value ~ quote ~ "\n" }}
+    {%- endif %}
+  {%- endfor %}
+
+  {#- Then process vars with a section #}
+  {%- for section, options in data.iteritems() | sort %}
+    {%- if options is mapping -%}
+      {{ "\n[" ~ section ~ "]\n" }}
+      {%- for key, value in options.iteritems() | sort -%}
+        {{ (key | upper if uppercase_keys else key) ~ delimiter ~ quote ~ value ~ quote ~ "\n" }}
+      {%- endfor %}
+    {%- endif %}
+  {%- endfor %}
+{% endmacro %}

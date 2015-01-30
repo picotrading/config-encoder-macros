@@ -1,0 +1,65 @@
+{#
+ # Jinja2 macro which converts Python data structure to XML format
+ #
+ # Limitation:
+ # - can not define attributes in a list
+ # - can not use variables in attributes
+ #}
+
+{%- macro xml_encode(item, level=0, indent="  ", first=[], prev_name=none) %}
+  {%- if item is mapping %}
+    {#- The item is a dict #}
+
+    {%- set prev_list = [0] %}
+
+    {%- for key, val in item.iteritems() | sort -%}
+      {%- if first | length > 0 and prev_list[0] == 0 -%}
+        {{ "\n" }}
+      {%- endif -%}
+
+      {%- if first.append(0) %}{% endif %}
+      {%- if prev_list.insert(0, 0) and prev_list.remove(1) %}{% endif %}
+
+      {%- if val is none -%}
+        {{ indent * level }}<{{ key }} />
+      {%- elif val is sequence and val is not string and val is not mapping -%}
+        {#- Only if val is a list -#}
+        {{ xml_encode(val, level=level, indent=indent, prev_name=key) }}
+        {%- if prev_list.insert(0, 1) and prev_list.remove(1) %}{% endif %}
+      {%- else -%}
+        {{ indent * level }}<{{ key }}>{{ xml_encode(val, level=level+1, indent=indent) }}
+
+        {%- if val is not string and val is not number and val is not none -%}
+          {{ indent * level }}
+        {%- endif -%}
+
+        </{{ key.split(' ')[0] }}>
+
+        {%- if loop.last-%}
+          {{ "\n" }}
+        {%- endif %}
+      {%- endif %}
+    {%- endfor %}
+
+  {%- elif item is number or item is string %}
+    {#- The item is a number, string or boolean -#}
+
+    {{ item }}
+
+  {%- elif item is none %}
+    {#- Item is a value of an empty element #}
+
+  {%- else %}
+    {#- The item is a list #}
+
+    {%- for e in item -%}
+      {{ indent * level }}<{{ prev_name }}>{{ xml_encode(e, level=level+1, indent=indent, prev_name=prev_name) }}
+
+      {%- if e is not string and e is not number and e is not none -%}
+        {{ indent * level }}
+      {%- endif -%}
+
+      </{{ prev_name }}>{{ "\n" }}
+    {%- endfor %}
+  {%- endif %}
+{%- endmacro -%}
