@@ -3,20 +3,21 @@
  #}
 
 {%- macro yaml_encode(
-  item,
-  level=0,
-  skip_indent=false,
-  quotation_mark='"',
-  indention_unit='  ',
-  detect_nums=false) %}
+      item,
+      convert_bools=true,
+      convert_nums=false,
+      indent="  ",
+      level=0,
+      quote='"',
+      skip_indent=false) %}
 
   {%- if item is mapping %}
     {#- The item is a dict #}
     {%- for key, value in item.iteritems() | sort -%}
       {%- if skip_indent and loop.first -%}
-        {{ ' ' }}
+        {{ " " }}
       {%- else -%}
-        {{ indention_unit * level }}
+        {{ indent * level }}
       {%- endif -%}
 
       {{ key }}:
@@ -27,38 +28,39 @@
 
       {{ yaml_encode(
            value,
+           convert_bools=convert_bools,
+           convert_nums=convert_nums,
+           indent=indent,
            level=level+1,
-           quotation_mark=quotation_mark,
-           indention_unit=indention_unit,
-           detect_nums=detect_nums) }}
+           quote=quote) }}
     {%- else -%}
-      {{ indention_unit * level + '{ }\n' }}
+      {{ indent * level + "{ }\n" }}
     {%- endfor %}
 
   {%- elif item is number or
-      (detect_nums and
-      (
+      (convert_nums and (
         item | int | string == item or
         item | float | string == item)) or
-      item == 'true' or
-      item == 'True' or
-      item == 'false' or
-      item == 'False' %}
+      (convert_bools and (
+        item == "true" or
+        item == "True" or
+        item == "false" or
+        item == "False")) %}
 
     {#- The item is a number or boolean -#}
-    {{ ' ' ~ item | lower ~ "\n" }}
+    {{ " " ~ item | lower ~ "\n" }}
 
   {%- elif item is string %}
     {#- The item is a string -#}
-    {{ ' ' +
-       quotation_mark +
-       item | replace(quotation_mark, '\\' + quotation_mark) +
-       quotation_mark + "\n" }}
+    {{ " " +
+       quote +
+       item | replace(quote, "\\" + quote) +
+       quote + "\n" }}
 
   {%- else %}
     {#- The item is a list #}
     {%- for n in item -%}
-      {{ indention_unit * level }}-
+      {{ indent * level }}-
       {%- if n is not string and
              n is not number and
              n is not mapping -%}
@@ -66,11 +68,12 @@
       {%- endif -%}
       {{ yaml_encode(
            n,
+           convert_bools=convert_bools,
+           convert_nums=convert_nums,
+           indent=indent,
            level=level+1,
-           skip_indent=true,
-           quotation_mark=quotation_mark,
-           indention_unit=indention_unit,
-           detect_nums=detect_nums) }}
+           quote=quote,
+           skip_indent=true) }}
     {%- endfor %}
   {%- endif %}
-{% endmacro %}
+{%- endmacro -%}

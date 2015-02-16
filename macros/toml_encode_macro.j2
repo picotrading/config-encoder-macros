@@ -1,9 +1,16 @@
 {#
  # Jinja2 macro which converts Python data structure to TOML format
- # (https://github.com/jtyr/yaml2toml-converter)
  #}
 
-{%- macro yaml2toml(item, prevkey='', level=0, first=[], detect_nums=false) %}
+{%- macro toml_encode(
+      item,
+      convert_bools=true,
+      convert_nums=false,
+      first=[],
+      indent="  ",
+      level=0,
+      prevkey="") %}
+
   {%- if item is mapping %}
     {#- The item is a dict #}
 
@@ -17,12 +24,14 @@
             value[0] is not mapping) %}
 
         {#- The value is a string, a number, or a list -#}
-        {{ '  ' * level }}{{ key }}{{ " = " }}{{ yaml2toml(
-          value,
-          prevkey=prevkey,
-          level=level,
-          first=first,
-          detect_nums=detect_nums) }}
+        {{ indent * level }}{{ key }}{{ " = " }}{{ toml_encode(
+            value,
+            convert_bools=convert_bools,
+            convert_nums=convert_nums,
+            first=first,
+            indent=indent,
+            level=level,
+            prevkey=prevkey) }}
         {%- if first.append(1) %}{% endif %}
       {%- endif %}
     {%- endfor %}
@@ -40,29 +49,31 @@
 
         {%- if value is mapping %}
           {#- The value is a dict #}
-          {%- if prevkey != '' and prevkey != key %}
+          {%- if prevkey != "" and prevkey != key %}
             {%- set level = level + 1 %}
           {%- endif %}
 
-          {%- set prevkey = (key if prevkey == '' else prevkey + '.' + key) %}
+          {%- set prevkey = (key if prevkey == "" else prevkey + "." + key) %}
 
           {%- if first | length > 0 -%}
-            {{ '\n' }}
+            {{ "\n" }}
           {%- endif -%}
 
-          {{ '  ' * level }}[{{ prevkey }}]{{ "\n" }}
+          {{ indent * level }}[{{ prevkey }}]{{ "\n" }}
         {%- elif value[0] is mapping %}
           {#- The value is a table #}
-          {%- set prevkey = (key if prevkey == '' else prevkey + '.' + key) %}
+          {%- set prevkey = (key if prevkey == "" else prevkey + "." + key) %}
           {%- set level = level +1 %}
         {%- endif -%}
 
-        {{ yaml2toml(
-             value,
-             prevkey=prevkey,
-             level=level,
-             first=first,
-             detect_nums=detect_nums) }}
+        {{ toml_encode(
+            value,
+            convert_bools=convert_bools,
+            convert_nums=convert_nums,
+            first=first,
+            indent=indent,
+            level=level,
+            prevkey=prevkey) }}
 
         {%- set prevkey = old_prevkey %}
         {%- set level = old_level %}
@@ -71,14 +82,13 @@
     {%- endfor %}
 
   {%- elif item is number or
-      (detect_nums and
-      (
+      (convert_nums and (
         item | int | string == item or
         item | float | string == item)) or
-      item == 'true' or
-      item == 'True' or
-      item == 'false' or
-      item == 'False' %}
+      item == "true" or
+      item == "True" or
+      item == "false" or
+      item == "False" %}
 
     {#- The item is a number or boolean -#}
     {{ item }}{{ "\n" }}
@@ -91,11 +101,13 @@
     {#- The item is a list #}
     {%- if item[0] is mapping %}
       {%- for d in item -%}
-        {{ "\n" }}{{ '  ' * level }}[[{{ prevkey }}]]{{ "\n" }}{{ yaml2toml(
-          d,
-          level=level,
-          first=first,
-          detect_nums=detect_nums) }}
+        {{ "\n" }}{{ indent * level }}[[{{ prevkey }}]]{{ "\n" }}{{ toml_encode(
+            d,
+            convert_bools=convert_bools,
+            convert_nums=convert_nums,
+            first=first,
+            indent=indent,
+            level=level) }}
       {%- endfor %}
     {%- else -%}
       {{ item }}{{ "\n" }}

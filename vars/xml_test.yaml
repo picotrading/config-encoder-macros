@@ -1,0 +1,15 @@
+---
+
+data:
+  root:
+    elem1: asd
+    elem2:
+      - asd
+      - zxc
+    with_attrs:
+      'elem3 attr1="val1" attr2=val2': 123
+      'elem4 attr3="val3"':
+        - Value 1
+        - elem5:
+            - Value 2
+            - Value 3

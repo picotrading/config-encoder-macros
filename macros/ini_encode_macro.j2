@@ -3,30 +3,34 @@
  #}
 
 {%- macro ini_encode(
-      data,
-      uppercase_keys=false,
-      quote="",
+      item,
       delimiter="=",
-      first=[]) %}
+      first=[],
+      quote="",
+      ucase_prop=false) %}
 
   {#- First process vars without a section #}
-  {%- for key, value in data.iteritems() | sort %}
+  {%- for property, value in item.iteritems() | sort %}
     {%- if value is not mapping %}
       {%- if first | length == 0 -%}
-        {{ "\n" }}
         {%- if first.append(1) %}{% endif %}
       {%- endif -%}
-      {{ (key | upper if uppercase_keys else key) ~ delimiter ~ quote ~ value ~ quote ~ "\n" }}
+      {{ (property | upper if ucase_prop else property) ~ delimiter ~ quote ~ value ~ quote ~ "\n" }}
     {%- endif %}
   {%- endfor %}
 
   {#- Then process vars with a section #}
-  {%- for section, options in data.iteritems() | sort %}
+  {%- for section, options in item.iteritems() | sort %}
     {%- if options is mapping -%}
-      {{ "\n[" ~ section ~ "]\n" }}
-      {%- for key, value in options.iteritems() | sort -%}
-        {{ (key | upper if uppercase_keys else key) ~ delimiter ~ quote ~ value ~ quote ~ "\n" }}
+      {%- if first | length == 0 -%}
+        {%- if first.append(1) %}{% endif %}
+      {%- else -%}
+        {{ "\n" }}
+      {%- endif -%}
+      {{ "[" ~ section ~ "]\n" }}
+      {%- for property, value in options.iteritems() | sort -%}
+        {{ (property | upper if ucase_prop else property) ~ delimiter ~ quote ~ value ~ quote ~ "\n" }}
       {%- endfor %}
     {%- endif %}
   {%- endfor %}
-{% endmacro %}
+{%- endmacro -%}

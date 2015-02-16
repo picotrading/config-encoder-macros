@@ -1,12 +1,14 @@
 {#
  # Jinja2 macro which converts Python data structure to XML format
- #
- # Limitation:
- # - can not define attributes in a list
- # - can not use variables in attributes
  #}
 
-{%- macro xml_encode(item, level=0, indent="  ", first=[], prev_name=none) %}
+{%- macro xml_encode(
+      item,
+      first=[],
+      indent="  ",
+      level=0,
+      prevkey=none) %}
+
   {%- if item is mapping %}
     {#- The item is a dict #}
 
@@ -24,16 +26,23 @@
         {{ indent * level }}<{{ key }} />
       {%- elif val is sequence and val is not string and val is not mapping -%}
         {#- Only if val is a list -#}
-        {{ xml_encode(val, level=level, indent=indent, prev_name=key) }}
+        {{ xml_encode(
+            val,
+            indent=indent,
+            level=level,
+            prevkey=key) }}
         {%- if prev_list.insert(0, 1) and prev_list.remove(1) %}{% endif %}
       {%- else -%}
-        {{ indent * level }}<{{ key }}>{{ xml_encode(val, level=level+1, indent=indent) }}
+        {{ indent * level }}<{{ key }}>{{ xml_encode(
+            val,
+            indent=indent,
+            level=level+1) }}
 
         {%- if val is not string and val is not number and val is not none -%}
           {{ indent * level }}
         {%- endif -%}
 
-        </{{ key.split(' ')[0] }}>
+        </{{ key.split(" ")[0] }}>
 
         {%- if loop.last-%}
           {{ "\n" }}
@@ -53,13 +62,17 @@
     {#- The item is a list #}
 
     {%- for e in item -%}
-      {{ indent * level }}<{{ prev_name }}>{{ xml_encode(e, level=level+1, indent=indent, prev_name=prev_name) }}
+      {{ indent * level }}<{{ prevkey }}>{{ xml_encode(
+          e,
+          indent=indent,
+          level=level+1,
+          prevkey=prevkey) }}
 
       {%- if e is not string and e is not number and e is not none -%}
         {{ indent * level }}
       {%- endif -%}
 
-      </{{ prev_name }}>{{ "\n" }}
+      </{{ prevkey.split(" ")[0] }}>{{ "\n" }}
     {%- endfor %}
   {%- endif %}
 {%- endmacro -%}

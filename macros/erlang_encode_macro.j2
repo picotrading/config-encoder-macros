@@ -2,33 +2,51 @@
  # Jinja2 macro which converts Python data structure to Erlang config format
  #}
 
-{%- macro erlang_encode(item, level=0, indent="  ", detect_nums=false) %}
+{%- macro erlang_encode(
+      item,
+      convert_bools=true,
+      convert_nums=false,
+      first=[],
+      indent="  ",
+      level=0) %}
+
   {%- if item is mapping %}
     {#- The item is a dict #}
 
-    {%- if item | length > 0 -%}
+    {%- if first | length > 0 and item | length > 0 -%}
       {{ "\n" }}
     {%- endif %}
 
-    {%- for key, val in item.iteritems() | sort -%}
-      {{ indent * (level+1) ~ "{" ~ key ~ ", "}}{{ erlang_encode(
-        val, level=level+1, indent=indent, detect_nums=detect_nums) }}{{ "}" }}
+    {%- if first.append(1) %}{% endif %}
 
-      {%- if loop.last -%}
-        {{ "\n" }}
-      {%- else -%}
+    {%- for key, val in item.iteritems() | sort -%}
+      {{ indent * level ~ "{" ~ key ~ ","}}
+
+      {%- if val is not mapping -%}
+        {{ " " }}
+      {%- endif -%}
+
+      {{ erlang_encode(
+          val,
+          convert_bools=convert_bools,
+          convert_nums=convert_nums,
+          first=first,
+          indent=indent,
+          level=level+1) }}{{ "}" }}
+
+      {%- if not loop.last -%}
         {{ ",\n" }}
       {%- endif %}
     {%- endfor %}
 
-  {%- elif item == "null" or item is number or (detect_nums and
-      (
+  {%- elif item == "null" or item is number or
+      (convert_nums and (
         item | int | string == item or
         item | float | string == item)) or
-      item == 'true' or
-      item == 'True' or
-      item == 'false' or
-      item == 'False'%}
+      item == "true" or
+      item == "True" or
+      item == "false" or
+      item == "False" %}
 
     {#- Item is a value of a number, null or boolean -#}
 
@@ -45,19 +63,30 @@
     {{ "[" }}
 
     {%- for val in item -%}
-      {{ erlang_encode(
-        val, level=level+1, indent=indent, detect_nums=detect_nums) }}
+      {%- if val is string or val is number -%}
+        {{ "\n" ~ indent * (level) }}
+      {%- endif -%}
 
-      {%- if not loop.last -%}
+      {{ erlang_encode(
+          val,
+          convert_bools=convert_bools,
+          convert_nums=convert_nums,
+          first=first,
+          indent=indent,
+          level=level+1) }}
+
+      {%- if loop.last -%}
+        {{ "\n" }}
+      {%- else -%}
         {{ "," }}
       {%- endif %}
     {%- endfor -%}
 
     {%- if item | length > 0 -%}
-      {{ indent * level ~ "]" }}
+      {{ indent * (level-1) ~ "]" }}
     {%- else -%}
       {{ "]" }}
     {%- endif %}
 
   {%- endif %}
-{% endmacro %}
+{%- endmacro -%}

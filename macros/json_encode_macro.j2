@@ -2,7 +2,13 @@
  # Jinja2 macro which converts Python data structure to JSON format
  #}
 
-{%- macro json_encode(item, level=0, indent="  ", detect_nums=false) %}
+{%- macro json_encode(
+      item,
+      convert_bools=true,
+      convert_nums=false,
+      indent="  ",
+      level=0) %}
+
   {%- if item is mapping %}
     {#- The item is a dict -#}
 
@@ -14,7 +20,11 @@
 
     {%- for key, val in item.iteritems() | sort -%}
       {{ indent * (level+1) ~ '"' ~ key ~ '": '}}{{ json_encode(
-        val, level=level+1, indent=indent, detect_nums=detect_nums) }}
+        val,
+        convert_bools=convert_bools,
+        convert_nums=convert_nums,
+        indent=indent,
+        level=level+1) }}
 
       {%- if loop.last -%}
         {{ "\n" }}
@@ -29,14 +39,14 @@
       {{ "}" }}
     {%- endif %}
 
-  {%- elif item == "null" or item is number or (detect_nums and
-      (
+  {%- elif item == "null" or item is number or
+      (convert_nums and (
         item | int | string == item or
         item | float | string == item)) or
-      item == 'true' or
-      item == 'True' or
-      item == 'false' or
-      item == 'False'%}
+      item == "true" or
+      item == "True" or
+      item == "false" or
+      item == "False" %}
 
     {#- Item is a value of a number, null or boolean -#}
 
@@ -58,7 +68,11 @@
 
     {%- for val in item -%}
       {{ indent * (level+1) }}{{ json_encode(
-        val, level=level+1, indent=indent, detect_nums=detect_nums) }}
+          val,
+          convert_bools=convert_bools,
+          convert_nums=convert_nums,
+          indent=indent,
+          level=level+1) }}
 
       {%- if loop.last -%}
         {{ "\n" }}
@@ -74,4 +88,4 @@
     {%- endif %}
 
   {%- endif %}
-{% endmacro %}
+{%- endmacro -%}

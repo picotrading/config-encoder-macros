@@ -1,0 +1,13 @@
+---
+
+data:
+  var1: val1
+  var2: val2
+  section1:
+    aaa: asdf
+    bbb: 123
+    ccc: 'true'
+  section2:
+    ddd: asdfasd
+    eee: 1234
+    fff: 'false'

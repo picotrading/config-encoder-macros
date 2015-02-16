@@ -1,0 +1,73 @@
+---
+
+- name: Erlang encode example
+  hosts: all
+  vars_files:
+    - vars/erlang_test.yaml
+  tasks:
+    - name: Create test.erlang file
+      template:
+        src: templates/test.erlang.j2
+        dest: /tmp/test.erlang
+      tags:
+        - erlang
+
+- name: INI encode example
+  hosts: all
+  vars_files:
+    - vars/ini_test.yaml
+  tasks:
+    - name: Create test.ini file
+      template:
+        src: templates/test.ini.j2
+        dest: /tmp/test.ini
+      tags:
+        - ini
+
+- name: JSON encode example
+  hosts: all
+  vars_files:
+    - vars/json_test.yaml
+  tasks:
+    - name: Create test.json file
+      template:
+        src: templates/test.json.j2
+        dest: /tmp/test.json
+      tags:
+        - json
+
+- name: TOML encode example
+  hosts: all
+  vars_files:
+    - vars/toml_test.yaml
+  tasks:
+    - name: Create test.toml file
+      template:
+        src: templates/test.toml.j2
+        dest: /tmp/test.toml
+      tags:
+        - toml
+
+- name: XML encode example
+  hosts: all
+  vars_files:
+    - vars/xml_test.yaml
+  tasks:
+    - name: Create test.xml file
+      template:
+        src: templates/test.xml.j2
+        dest: /tmp/test.xml
+      tags:
+        - xml
+
+- name: YAML encode example
+  hosts: all
+  vars_files:
+    - vars/yaml_test.yaml
+  tasks:
+    - name: Create test.yaml file
+      template:
+        src: templates/test.yaml.j2
+        dest: /tmp/test.yaml
+      tags:
+        - yaml
