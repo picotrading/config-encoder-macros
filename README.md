@@ -101,7 +101,7 @@ eee=1234
 fff=false
 ```
 
-Look into the `site.yaml` and `templates\*.j2` for more examples.
+Look into the `site.yaml` and `templates/*.j2` for more examples.
 
 
 Macros parameters
@@ -115,133 +115,197 @@ following parameter should be addressed by a keyword (e.g. `indent="  "` where
 ### `erlang_encode()`
 
 - `item`
-   > Variable holding the input data for the macro.
+
+  > Variable holding the input data for the macro.
+
 - `convert_bools=true`
-   > Indicates whether Boolean values presented as a string should be converted
-   > to a real Booblean value. For example `var1: 'True'` would be represented
-   > as a string but using the `convert_bools=true` will convert it to a Boolean
-   > like it would be defined like this: `var1: true`.
+
+  > Indicates whether Boolean values presented as a string should be converted
+  > to a real Booblean value. For example `var1: 'True'` would be represented
+  > as a string but using the `convert_bools=true` will convert it to a Boolean
+  > like it would be defined like this: `var1: true`.
+
 - `convert_nums=false`
-   > Indicates whether number presented as a string should be converted to
-   > number. For example `var1: '123'` would be represented as a string but
-   > using the `convert_nums=true` will convert it to a number like it would
-   > be defined like this: `var1: 123`.
+
+  > Indicates whether number presented as a string should be converted to
+  > number. For example `var1: '123'` would be represented as a string but
+  > using the `convert_nums=true` will convert it to a number like it would
+  > be defined like this: `var1: 123`.
+
 - `first=[]`
-   > Indicates whether the item being processed is actually a first item. It's
-   > used only internally in the macro.
+
+  > Indicates whether the item being processed is actually a first item. It's
+  > used only internally in the macro.
+
 - `indent="  "`
-   > Defines the indentation unit.
+
+  > Defines the indentation unit.
+
 - `level=0`
-   > Indicates the initial level of the indentation. Value `0` starts indenting
-   > from the beginning of the line. Setting the value to higher than `0`
-   > indents the content by `intent * level`.
+
+  > Indicates the initial level of the indentation. Value `0` starts indenting
+  > from the beginning of the line. Setting the value to higher than `0`
+  > indents the content by `indent * level`.
 
 
 ### `ini_encode()`
 - `item`
-   > Variable holding the input data for the macro.
+
+  > Variable holding the input data for the macro.
+
 - `delimiter="="`
-   > Sign separating the *property* and the *value*. By default it's set to `=`
-   > but it can also be set to ` = `.
+
+  > Sign separating the *property* and the *value*. By default it's set to `'='`
+  > but it can also be set to `' = '`.
+
 - `first=[]`
-   > Indicates whether the item being processed is actually a first item. It's
-   > used only internally in the macro.
+
+  > Indicates whether the item being processed is actually a first item. It's
+  > used only internally in the macro.
+
 - `quote=""`
-   > Allows to set the *value* quoting. Use `quote="'"` or `quote='"'`.
+
+  > Allows to set the *value* quoting. Use `quote="'"` or `quote='"'`.
+
 - `ucase_prop=false`
-   > Indicates whether the *property* should be made uppercase.
+
+  > Indicates whether the *property* should be made uppercase.
 
 
 ### `json_encode()`
 - `item`
-   > Variable holding the input data for the macro.
+
+  > Variable holding the input data for the macro.
+
 - `convert_bools=true`
-   > Indicates whether Boolean values presented as a string should be converted
-   > to a real Booblean value. For example `var1: 'True'` would be represented
-   > as a string but using the `convert_bools=true` will convert it to a Boolean
-   > like it would be defined like this: `var1: true`.
+
+  > Indicates whether Boolean values presented as a string should be converted
+  > to a real Booblean value. For example `var1: 'True'` would be represented
+  > as a string but using the `convert_bools=true` will convert it to a Boolean
+  > like it would be defined like this: `var1: true`.
+
 - `convert_nums=false`
-   > Indicates whether number presented as a string should be converted to
-   > number. For example `var1: '123'` would be represented as a string but
-   > using the `convert_nums=true` will convert it to a number like it would
-   > be defined like this: `var1: 123`.
+
+  > Indicates whether number presented as a string should be converted to
+  > number. For example `var1: '123'` would be represented as a string but
+  > using the `convert_nums=true` will convert it to a number like it would
+  > be defined like this: `var1: 123`.
+
 - `indent="  "`
-   > Defines the indentation unit.
+
+  > Defines the indentation unit.
+
 - `level=0`
-   > Indicates the initial level of the indentation. Value `0` starts indenting
-   > from the beginning of the line. Setting the value to higher than `0`
-   > indents the content by `intent * level`.
+
+  > Indicates the initial level of the indentation. Value `0` starts indenting
+  > from the beginning of the line. Setting the value to higher than `0`
+  > indents the content by `indent * level`.
 
 
 ### `toml_encode()`
 
 - `item`
-   > Variable holding the input data for the macro.
+
+  > Variable holding the input data for the macro.
+
 - `convert_bools=true`
-   > Indicates whether Boolean values presented as a string should be converted
-   > to a real Booblean value. For example `var1: 'True'` would be represented
-   > as a string but using the `convert_bools=true` will convert it to a Boolean
-   > like it would be defined like this: `var1: true`.
+
+  > Indicates whether Boolean values presented as a string should be converted
+  > to a real Booblean value. For example `var1: 'True'` would be represented
+  > as a string but using the `convert_bools=true` will convert it to a Boolean
+  > like it would be defined like this: `var1: true`.
+
 - `convert_nums=false`
-   > Indicates whether number presented as a string should be converted to
-   > number. For example `var1: '123'` would be represented as a string but
-   > using the `convert_nums=true` will convert it to a number like it would
-   > be defined like this: `var1: 123`.
+
+  > Indicates whether number presented as a string should be converted to
+  > number. For example `var1: '123'` would be represented as a string but
+  > using the `convert_nums=true` will convert it to a number like it would
+  > be defined like this: `var1: 123`.
+
 - `first=[]`
-   > Indicates whether the item being processed is actually a first item. It's
-   > used only internally in the macro.
+
+  > Indicates whether the item being processed is actually a first item. It's
+  > used only internally in the macro.
+
 - `indent="  "`
-   > Defines the indentation unit.
+
+  > Defines the indentation unit.
+
 - `level=0`
-   > Indicates the initial level of the indentation. Value `0` starts indenting
-   > from the beginning of the line. Setting the value to higher than `0`
-   > indents the content by `intent * level`.
+
+  > Indicates the initial level of the indentation. Value `0` starts indenting
+  > from the beginning of the line. Setting the value to higher than `0`
+  > indents the content by `indent * level`.
+
 - `prevkey=""`
-   > Defines the name of the previous key in the recursive macro calls. It's used
-   > only internally in the macro.
+
+  > Defines the name of the previous key in the recursive macro calls. It's used
+  > only internally in the macro.
 
 
 ### `xml_encode()`
 - `item`
-   > Variable holding the input data for the macro.
+
+  > Variable holding the input data for the macro.
+
 - `first=[]`
-   > Indicates whether the item being processed is actually a first item. It's
-   > used only internally in the macro.
+
+  > Indicates whether the item being processed is actually a first item. It's
+  > used only internally in the macro.
+
 - `indent="  "`
-   > Defines the indentation unit.
+
+  > Defines the indentation unit.
+
 - `level=0`
-   > Indicates the initial level of the indentation. Value `0` starts indenting
-   > from the beginning of the line. Setting the value to higher than `0`
-   > indents the content by `intent * level`.
+
+  > Indicates the initial level of the indentation. Value `0` starts indenting
+  > from the beginning of the line. Setting the value to higher than `0`
+  > indents the content by `indent * level`.
+
 - `prevkey=none`
-   > Defines the name of the previous key in the recursive macro calls. It's used
-   > only internally in the macro.
+
+  > Defines the name of the previous key in the recursive macro calls. It's used
+  > only internally in the macro.
 
 
 ### `yaml_encode()`
 - `item`
-   > Variable holding the input data for the macro.
+
+  > Variable holding the input data for the macro.
+
 - `convert_bools=true`
-   > Indicates whether Boolean values presented as a string should be converted
-   > to a real Booblean value. For example `var1: 'True'` would be represented
-   > as a string but using the `convert_bools=true` will convert it to a Boolean
-   > like it would be defined like this: `var1: true`.
+
+  > Indicates whether Boolean values presented as a string should be converted
+  > to a real Booblean value. For example `var1: 'True'` would be represented
+  > as a string but using the `convert_bools=true` will convert it to a Boolean
+  > like it would be defined like this: `var1: true`.
+
 - `convert_nums=false`
-   > Indicates whether number presented as a string should be converted to
-   > number. For example `var1: '123'` would be represented as a string but
-   > using the `convert_nums=true` will convert it to a number like it would
-   > be defined like this: `var1: 123`.
+
+  > Indicates whether number presented as a string should be converted to
+  > number. For example `var1: '123'` would be represented as a string but
+  > using the `convert_nums=true` will convert it to a number like it would
+  > be defined like this: `var1: 123`.
+
 - `indent="  "`
-   > Defines the indentation unit.
+
+  > Defines the indentation unit.
+
 - `level=0`
-   > Indicates the initial level of the indentation. Value `0` starts indenting
-   > from the beginning of the line. Setting the value to higher than `0`
-   > indents the content by `intent * level`.
+
+  > Indicates the initial level of the indentation. Value `0` starts indenting
+  > from the beginning of the line. Setting the value to higher than `0`
+  > indents the content by `indent * level`.
+
 - `quote='"'`
-   > Allows to set the *value* quoting. Use `quote="'"` or `quote='"'`.
+
+  > Allows to set the *value* quoting. Use `quote="'"` or `quote='"'`.
+
 - `skip_indent=false`
-   > Indicates whether the indentation should be skipped for the specific item.
-   > It's used only internally in the macro.
+
+  > Indicates whether the indentation should be skipped for the specific item.
+  > It's used only internally in the macro.
 
 
 Limitations
@@ -255,7 +319,7 @@ Boolean value (`true` and `false`). The reason for this behavior is that if you
 want to pass a Boolean variable in Ansible, you have to actually quote it (e.g.
 `var1: "{{ my_boolean_var }}"`). Once the variable is quoted, it's not a Boolean
 variable any more. If you want to use Boolean as a string in your final
-configuration file, try to use value with a space (e.g. `' true'`).
+configuration file, try to use the value with a space (e.g. `' true'`).
 
 
 ### XML macro
