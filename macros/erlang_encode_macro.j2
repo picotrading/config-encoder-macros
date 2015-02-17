@@ -36,6 +36,10 @@
 
       {%- if not loop.last -%}
         {{ ",\n" }}
+      {%- endif -%}
+
+      {%- if level == 0 -%}
+        {{ "\n" }}
       {%- endif %}
     {%- endfor %}
 
@@ -50,7 +54,7 @@
 
     {#- Item is a value of a number, null or boolean -#}
 
-    {{ item }}
+    {{ item | lower }}
 
   {%- elif item is string %}
     {#- The item is a string -#}

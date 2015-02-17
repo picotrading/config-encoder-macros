@@ -91,7 +91,7 @@
       item == "False" %}
 
     {#- The item is a number or boolean -#}
-    {{ item }}{{ "\n" }}
+    {{ item | lower }}{{ "\n" }}
 
   {%- elif item is string %}
     {#- The item is a string -#}

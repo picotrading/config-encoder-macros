@@ -39,6 +39,10 @@
       {{ "}" }}
     {%- endif %}
 
+    {%- if level == 0 -%}
+      {{ "\n" }}
+    {%- endif %}
+
   {%- elif item == "null" or item is number or
       (convert_nums and (
         item | int | string == item or
@@ -50,7 +54,7 @@
 
     {#- Item is a value of a number, null or boolean -#}
 
-    {{ item }}
+    {{ item | lower }}
 
   {%- elif item is string %}
     {#- The item is a string -#}
