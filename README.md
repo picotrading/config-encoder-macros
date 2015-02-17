@@ -313,13 +313,13 @@ Limitations
 
 ### Erlang, JSON, TOML and YAML macros
 
-In these sensitive file formats, the Boolean values represented as string
+In these type-sensitive file formats, the Boolean values represented as string
 (`"true"`, `"True"`, `"false"` and `"False"`) are automatically converted to
 Boolean value (`true` and `false`). The reason for this behavior is that if you
 want to pass a Boolean variable in Ansible, you have to actually quote it (e.g.
-`var1: "{{ my_boolean_var }}"`). Once the variable is quoted, it's not a Boolean
-variable any more. If you want to use Boolean as a string in your final
-configuration file, try to use the value with a space (e.g. `' true'`).
+`var1: "{{ my_boolean_var }}"`). Once the variable is quoted, it's not Boolean
+any more. If you want to use Boolean as a string in your final configuration
+file, try to use the value with a space (e.g. `' true'`).
 
 
 ### XML macro
