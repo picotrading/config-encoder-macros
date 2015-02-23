@@ -67,7 +67,7 @@ Where the `templates/test.ini.j2` contains:
 # Any changes will be automatically reverted.
 #
 
-{% from 'macros/ini_encode_macro.j2' import ini_encode with context -%}
+{% from "macros/ini_encode_macro.j2" import ini_encode with context -%}
 
 {{ ini_encode(data) }}
 ```
