@@ -24,6 +24,18 @@
       tags:
         - ini
 
+- name: Simplified INI encode example
+  hosts: all
+  vars_files:
+    - vars/ini_test.yaml
+  tasks:
+    - name: Create test.simple file
+      template:
+        src: templates/test.ini_simple.j2
+        dest: /tmp/test.ini_simple
+      tags:
+        - simple
+
 - name: JSON encode example
   hosts: all
   vars_files:
