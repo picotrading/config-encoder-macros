@@ -4,7 +4,9 @@ data:
   var1: val1
   var2: val2
   section1:
-    aaa: asdf
+    aaa:
+      - asdf
+      - zxcv
     bbb: 123
     ccc: 'true'
   section2:
