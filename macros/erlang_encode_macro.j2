@@ -11,11 +11,9 @@
       level=0) %}
 
   {%- if item is mapping %}
-    {#- The item is a dict #}
+    {#- The item is a dict -#}
 
-    {%- if first | length > 0 and item | length > 0 -%}
-      {{ "\n" }}
-    {%- endif %}
+    {{ "\n" }}
 
     {%- if first.append(1) %}{% endif %}
 
@@ -37,10 +35,6 @@
       {%- if not loop.last -%}
         {{ ",\n" }}
       {%- endif -%}
-
-      {%- if level == 0 -%}
-        {{ ".\n" }}
-      {%- endif %}
     {%- endfor %}
 
   {%- elif item == "null" or item is number or
@@ -90,6 +84,10 @@
       {{ indent * (level-1) ~ "]" }}
     {%- else -%}
       {{ "]" }}
+    {%- endif %}
+
+    {%- if level == 0 -%}
+      {{ ".\n" }}
     {%- endif %}
 
   {%- endif %}
