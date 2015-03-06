@@ -167,6 +167,10 @@ following parameter should be addressed by a keyword (e.g. `indent="  "` where
 
   > Allows to set the *value* quoting. Use `quote="'"` or `quote='"'`.
 
+- `section_is_comment=false`
+
+  > Prints sections as comments.
+
 - `ucase_prop=false`
 
   > Indicates whether the *property* should be made uppercase.
