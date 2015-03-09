@@ -4,7 +4,7 @@
 
 {%- macro yaml_encode(
       item,
-      convert_bools=true,
+      convert_bools=false,
       convert_nums=false,
       indent="  ",
       level=0,
@@ -42,10 +42,7 @@
         item | int | string == item or
         item | float | string == item)) or
       (convert_bools and (
-        item == "true" or
-        item == "True" or
-        item == "false" or
-        item == "False")) %}
+        item in ["true", "True", "false", "False"])) %}
 
     {#- The item is a number or boolean -#}
     {{ " " ~ item | lower ~ "\n" }}

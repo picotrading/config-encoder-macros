@@ -4,7 +4,7 @@
 
 {%- macro erlang_encode(
       item,
-      convert_bools=true,
+      convert_bools=false,
       convert_nums=false,
       first=[],
       indent="  ",
@@ -41,10 +41,7 @@
       (convert_nums and (
         item | int | string == item or
         item | float | string == item)) or
-      item == "true" or
-      item == "True" or
-      item == "false" or
-      item == "False" %}
+      item in ["true", "True", "false", "False"] %}
 
     {#- Item is a value of a number, null or boolean -#}
 

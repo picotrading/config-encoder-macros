@@ -118,7 +118,7 @@ following parameter should be addressed by a keyword (e.g. `indent="  "` where
 
   > Variable holding the input data for the macro.
 
-- `convert_bools=true`
+- `convert_bools=false`
 
   > Indicates whether Boolean values presented as a string should be converted
   > to a real Booblean value. For example `var1: 'True'` would be represented
@@ -130,7 +130,8 @@ following parameter should be addressed by a keyword (e.g. `indent="  "` where
   > Indicates whether number presented as a string should be converted to
   > number. For example `var1: '123'` would be represented as a string but
   > using the `convert_nums=true` will convert it to a number like it would
-  > be defined like this: `var1: 123`.
+  > be defined like this: `var1: 123`. You can also use the YAML type casting
+  > to convert string to number (e.g. `!!int "1234"`, `!!float "3.14"`).
 
 - `first=[]`
 
@@ -181,7 +182,7 @@ following parameter should be addressed by a keyword (e.g. `indent="  "` where
 
   > Variable holding the input data for the macro.
 
-- `convert_bools=true`
+- `convert_bools=false`
 
   > Indicates whether Boolean values presented as a string should be converted
   > to a real Booblean value. For example `var1: 'True'` would be represented
@@ -193,7 +194,8 @@ following parameter should be addressed by a keyword (e.g. `indent="  "` where
   > Indicates whether number presented as a string should be converted to
   > number. For example `var1: '123'` would be represented as a string but
   > using the `convert_nums=true` will convert it to a number like it would
-  > be defined like this: `var1: 123`.
+  > be defined like this: `var1: 123`. You can also use the YAML type casting
+  > to convert string to number (e.g. `!!int "1234"`, `!!float "3.14"`).
 
 - `indent="  "`
 
@@ -212,19 +214,22 @@ following parameter should be addressed by a keyword (e.g. `indent="  "` where
 
   > Variable holding the input data for the macro.
 
-- `convert_bools=true`
+- `convert_bools=false`
 
   > Indicates whether Boolean values presented as a string should be converted
   > to a real Booblean value. For example `var1: 'True'` would be represented
   > as a string but using the `convert_bools=true` will convert it to a Boolean
-  > like it would be defined like this: `var1: true`.
+  > like it would be defined like this: `var1: true`. You can also use the YAML
+  > type casting by using `!!bool` in front of your value (e.g.
+  > `!!bool "true"`).
 
 - `convert_nums=false`
 
   > Indicates whether number presented as a string should be converted to
   > number. For example `var1: '123'` would be represented as a string but
   > using the `convert_nums=true` will convert it to a number like it would
-  > be defined like this: `var1: 123`.
+  > be defined like this: `var1: 123`. You can also use the YAML type casting
+  > to convert string to number (e.g. `!!int "1234"`, `!!float "3.14"`).
 
 - `first=[]`
 
@@ -278,7 +283,7 @@ following parameter should be addressed by a keyword (e.g. `indent="  "` where
 
   > Variable holding the input data for the macro.
 
-- `convert_bools=true`
+- `convert_bools=false`
 
   > Indicates whether Boolean values presented as a string should be converted
   > to a real Booblean value. For example `var1: 'True'` would be represented
@@ -290,7 +295,8 @@ following parameter should be addressed by a keyword (e.g. `indent="  "` where
   > Indicates whether number presented as a string should be converted to
   > number. For example `var1: '123'` would be represented as a string but
   > using the `convert_nums=true` will convert it to a number like it would
-  > be defined like this: `var1: 123`.
+  > be defined like this: `var1: 123`. You can also use the YAML type casting
+  > to convert string to number (e.g. `!!int "1234"`, `!!float "3.14"`).
 
 - `indent="  "`
 
@@ -326,6 +332,13 @@ any more. If you want to use Boolean as a string in your final configuration
 file, try to use the value with a space (e.g. `' true'`).
 
 
+### INI macro
+
+This macro doesn't respect the order in which the data was defined. It probably
+need to be fixed as some config files might allow to overwrite previous
+definitions.
+
+
 ### XML macro
 
 YAML doesn't allow to fully map XML data with attributes. This is why XML
@@ -352,7 +365,9 @@ Will produce the following XML file (`elem` has the same set of attributes):
 ```
 
 Another limitation of the XML macro is that attributes can not have value
-derivated from a Jinja2 variable in the Ansible context.
+derivated from a Jinja2 variable in the Ansible context. This macro also doesn't
+allow to set order of the elements so it's suitable only for order-insensitive
+XML files.
 
 
 Python example
