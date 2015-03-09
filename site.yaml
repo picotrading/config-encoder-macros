@@ -1,5 +1,17 @@
 ---
 
+- name: Apache encode example
+  hosts: all
+  vars_files:
+    - vars/apache_test.yaml
+  tasks:
+    - name: Create test.apache file
+      template:
+        src: templates/test.apache.j2
+        dest: /tmp/test.apache
+      tags:
+        - apache
+
 - name: Erlang encode example
   hosts: all
   vars_files:

@@ -13,7 +13,7 @@ def parse_arguments():
     parser.add_argument(
         '--format', '-f',
         metavar='FORMAT',
-        choices=['erlang', 'ini', 'json', 'toml', 'xml', 'yaml'],
+        choices=['apache', 'erlang', 'ini', 'json', 'toml', 'xml', 'yaml'],
         required=True,
         help='Output format')
     parser.add_argument(

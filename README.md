@@ -21,7 +21,8 @@ convert the Python data structure to another format.
 Supported formats
 -----------------
 
-- Erlang config
+- Apache config format
+- Erlang config format
 - INI
 - JSON
 - TOML
@@ -110,6 +111,43 @@ Macros parameters
 The first parameter passed to the macro is always the data structure. Any
 following parameter should be addressed by a keyword (e.g. `indent="  "` where
 `indent` is the keyword).
+
+
+### `apache_encode()`
+
+- `item`
+
+  > Variable holding the input data for the macro.
+
+- `convert_bools=false`
+
+  > Indicates whether Boolean values presented as a string should be converted
+  > to a real Booblean value. For example `var1: 'True'` would be represented
+  > as a string but using the `convert_bools=true` will convert it to a Boolean
+  > like it would be defined like this: `var1: true`.
+
+- `convert_nums=false`
+
+  > Indicates whether number presented as a string should be converted to
+  > number. For example `var1: '123'` would be represented as a string but
+  > using the `convert_nums=true` will convert it to a number like it would
+  > be defined like this: `var1: 123`. You can also use the YAML type casting
+  > to convert string to number (e.g. `!!int "1234"`, `!!float "3.14"`).
+
+- `indent="  "`
+
+  > Defines the indentation unit.
+
+- `type="section"`
+
+  > Defines the type of the `item` in the recursive macro calls. It's used only
+  > internally in the macro.
+
+- `level=0`
+
+  > Indicates the initial level of the indentation. Value `0` starts indenting
+  > from the beginning of the line. Setting the value to higher than `0`
+  > indents the content by `indent * level`.
 
 
 ### `erlang_encode()`

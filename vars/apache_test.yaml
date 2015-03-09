@@ -1,0 +1,64 @@
+---
+
+data:
+  content:
+    - options:
+      - ServerName: localhost
+      - Listen: 8080
+      - PidFile: tmp/httpd.pid
+      - LockFile: tmp/accept.lock
+    - options:
+      - "# This is an example of a comment": ""
+      - LoadModule:
+        - authz_host_module
+        - /usr/libexec/apache2/mod_authz_host.so
+      - LoadModule:
+        - dir_module
+        - /usr/libexec/apache2/mod_dir.so
+      - LoadModule:
+        - env_module
+        - /usr/libexec/apache2/mod_env.so
+      - LoadModule:
+        - mime_module
+        - /usr/libexec/apache2/mod_mime.so
+      - LoadModule:
+        - log_config_module
+        - /usr/libexec/apache2/mod_log_config.so
+      - LoadModule:
+        - rewrite_module
+        - /usr/libexec/apache2/mod_rewrite.so
+      - LoadModule:
+        - php5_module
+        - /usr/local/opt/php53/libexec/apache2/libphp5.so
+      - LogLevel: info
+    - options:
+      - ErrorLog: "|cat"
+      - LogFormat:
+        - "%h %l %u %t \"%r\" %>s %b"
+        - common
+      - CustomLog:
+        - "|cat"
+        - common
+    - options:
+      - DocumentRoot: build
+    - sections:
+      - name: Directory
+        param: build
+        content:
+          - options:
+            - AllowOverride: all
+            - Order: allow,deny
+            - Allow:
+              - from
+              - all
+    - options:
+      - AddType:
+        - application/x-httpd-php
+        - .php
+      - DirectoryIndex:
+        - index.html
+        - index.php
+    - options:
+      - SetEnv:
+        - LOCAL_SERVER
+        - true

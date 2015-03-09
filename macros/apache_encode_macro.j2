@@ -1,0 +1,105 @@
+{#
+ # Jinja2 macro which converts Python data structure to Apache format
+ #}
+
+{%- macro apache_encode(
+      item,
+      convert_bools=false,
+      convert_nums=false,
+      indent="  ",
+      level=0,
+      type="sections") %}
+
+  {%- if type == "sections" %}
+    {%- for c in item["content"] %}
+      {#- First check if this section has options #}
+      {%- if "options" in c -%}
+        {{ apache_encode(
+            c["options"],
+            convert_bools=convert_bools,
+            convert_nums=convert_nums,
+            type="options",
+            level=level+1) }}
+      {%- endif %}
+
+      {#- Check if this section has some sub-sections #}
+      {%- if "sections" in c %}
+
+        {%- for s in c["sections"] -%}
+          {{  indent * level ~ "<" ~ s["name"] ~ (" " ~
+              apache_encode(
+                s["param"],
+                convert_bools=convert_bools,
+                convert_nums=convert_nums,
+                type="value",
+                level=level+1)
+              if s["param"] else "") ~ ">\n" ~
+              apache_encode(
+                s,
+                convert_bools=convert_bools,
+                convert_nums=convert_nums,
+                type="sections",
+                level=level+1) ~
+              indent * level ~ "</" ~ s["name"] ~ ">\n" }}
+
+            {%- if not loop.last -%}
+            {{ "\n" }}
+          {%- endif %}
+        {%- endfor %}
+      {%- endif %}
+
+      {%- if not loop.last -%}
+        {{ "\n" }}
+      {%- endif %}
+    {%- endfor %}
+
+  {%- elif type == "options" %}
+    {%- for o in item -%}
+      {%- for key, val in o.iteritems() -%}
+        {{  indent * (level-1) ~ key ~ " " ~
+            apache_encode(
+              val,
+              convert_bools=convert_bools,
+              convert_nums=convert_nums,
+              type="value",
+              level=level+1) ~ "\n" }}
+      {%- endfor %}
+    {%- endfor %}
+
+  {%- elif type == "value" %}
+    {%- if item == True or item == False or
+        convert_bools and (item in ["true", "True", "false", "False"]) %}
+      {#- Value is a boolean -#}
+      {{ item | lower }}
+
+    {%- elif item is number %}
+      {#- Value is a number -#}
+      {{ item }}
+
+    {%- elif item is string %}
+      {#- Value is a string #}
+      {%- if " " in item or "\t" in item or "\n" in item -%}
+        "{{ item | replace('"', '\\"') }}"
+      {%- else -%}
+        {{ item }}
+      {%- endif %}
+
+    {%- elif item is not mapping %}
+      {#- Value is a list #}
+      {%- for v in item -%}
+        {{  apache_encode(
+              v,
+              convert_bools=convert_bools,
+              convert_nums=convert_nums,
+              type="value",
+              level=level+1) }}
+
+        {%- if not loop.last -%}
+          {{ " " }}
+        {%- endif %}
+      {%- endfor %}
+    {%- endif %}
+
+  {%- endif %}
+
+{%- endmacro %}
