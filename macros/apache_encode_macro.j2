@@ -24,7 +24,6 @@
 
       {#- Check if this section has some sub-sections #}
       {%- if "sections" in c %}
-
         {%- for s in c["sections"] -%}
           {{  indent * level ~ "<" ~ s["name"] ~ (" " ~
               apache_encode(
@@ -42,13 +41,18 @@
                 level=level+1) ~
               indent * level ~ "</" ~ s["name"] ~ ">\n" }}
 
-            {%- if not loop.last -%}
+          {%- if not loop.last -%}
             {{ "\n" }}
           {%- endif %}
         {%- endfor %}
       {%- endif %}
 
-      {%- if not loop.last -%}
+      {%- if not loop.last and
+          (
+            "options" in c and c["options"] | length > 0 or
+            "sections" in c and c["sections"] | length > 0
+          )
+      -%}
         {{ "\n" }}
       {%- endif %}
     {%- endfor %}
