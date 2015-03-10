@@ -33,7 +33,7 @@
                 convert_nums=convert_nums,
                 type="value",
                 level=level+1)
-              if s["param"] else "") ~ ">\n" ~
+              if "param" in s else "") ~ ">\n" ~
               apache_encode(
                 s,
                 convert_bools=convert_bools,
