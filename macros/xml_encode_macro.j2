@@ -28,6 +28,7 @@
         {#- Only if val is a list -#}
         {{ xml_encode(
             val,
+            first=first,
             indent=indent,
             level=level,
             prevkey=key) }}
@@ -64,6 +65,7 @@
     {%- for e in item -%}
       {{ indent * level }}<{{ prevkey }}>{{ xml_encode(
           e,
+          first=first,
           indent=indent,
           level=level+1,
           prevkey=prevkey) }}
