@@ -22,17 +22,20 @@
             level=level+1) }}
       {%- endif %}
 
+      {%- set is_empty = [] %}
+
       {#- Check if this section has some sub-sections #}
       {%- if "sections" in c %}
         {%- for s in c["sections"] %}
-          {%- if (
-                "options" in s["content"][0] and
-                s["content"][0]["options"] | length > 0
-              ) or
-                ("sections" in s["content"][0] and
-                s["content"][0]["sections"] | length > 0
-              ) -%}
 
+          {#- Check for empty sub-sections #}
+          {%- for i in s["content"] %}
+            {%- if ('options' in i and i['options'] | length > 0) or ('sections' in i and i['sections'] | length > 0) %}
+              {%- if is_empty.append(1) %}{% endif %}
+            {%- endif %}
+          {%- endfor %}
+
+          {%- if is_empty | length > 0 -%}
             {{  indent * level ~ "<" ~ s["name"] ~ (" " ~
                 apache_encode(
                   s["param"],
@@ -59,7 +62,10 @@
       {%- if not loop.last and
           (
             "options" in c and c["options"] | length > 0 or
-            "sections" in c and c["sections"] | length > 0
+            (
+              "sections" in c and c["sections"] | length > 0 and
+              is_empty | length > 0
+            )
           )
       -%}
         {{ "\n" }}
@@ -91,7 +97,12 @@
 
     {%- elif item is string %}
       {#- Value is a string #}
-      {%- if " " in item or "\t" in item or "\n" in item or item == "" -%}
+      {%- if " " in item or
+          " " in item or
+          "\t" in item or
+          "\n" in item or
+          item in ["", "."] -%}
+
         "{{ item | replace('"', '\\"') }}"
       {%- else -%}
         {{ item }}
