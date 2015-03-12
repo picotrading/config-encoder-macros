@@ -8,6 +8,8 @@
       convert_nums=false,
       indent="  ",
       level=0,
+      quote_all_nums=false,
+      quote_all_strings=false,
       type="sections") %}
 
   {%- if type == "sections" %}
@@ -18,8 +20,11 @@
             c["options"],
             convert_bools=convert_bools,
             convert_nums=convert_nums,
-            type="options",
-            level=level+1) }}
+            indent=indent,
+            level=level+1,
+            quote_all_nums=quote_all_nums,
+            quote_all_strings=quote_all_strings,
+            type="options") }}
       {%- endif %}
 
       {%- set is_empty = [] %}
@@ -41,15 +46,21 @@
                   s["param"],
                   convert_bools=convert_bools,
                   convert_nums=convert_nums,
-                  type="value",
-                  level=level+1)
+                  indent=indent,
+                  level=level+1,
+                  quote_all_nums=quote_all_nums,
+                  quote_all_strings=quote_all_strings,
+                  type="value")
                 if "param" in s else "") ~ ">\n" ~
                 apache_encode(
                   s,
                   convert_bools=convert_bools,
                   convert_nums=convert_nums,
-                  type="sections",
-                  level=level+1) ~
+                  indent=indent,
+                  level=level+1,
+                  quote_all_nums=quote_all_nums,
+                  quote_all_strings=quote_all_strings,
+                  type="sections") ~
                 indent * level ~ "</" ~ s["name"] ~ ">\n" }}
 
             {%- if not loop.last -%}
@@ -80,8 +91,11 @@
               val,
               convert_bools=convert_bools,
               convert_nums=convert_nums,
-              type="value",
-              level=level+1) ~ "\n" }}
+              indent=indent,
+              level=level+1,
+              quote_all_nums=quote_all_nums,
+              quote_all_strings=quote_all_strings,
+              type="value") ~ "\n" }}
       {%- endfor %}
     {%- endfor %}
 
@@ -93,15 +107,20 @@
 
     {%- elif item is number %}
       {#- Value is a number -#}
-      {{ item }}
+      {%- if quote_all_nums -%}
+        "{{ item }}"
+      {%- else -%}
+        {{ item }}
+      {%- endif %}
 
     {%- elif item is string %}
       {#- Value is a string #}
-      {%- if " " in item or
+      {%- if quote_all_strings or
           " " in item or
           "\t" in item or
           "\n" in item or
-          item in ["", "."] -%}
+          "\r" in item or
+          item == "" -%}
 
         "{{ item | replace('"', '\\"') }}"
       {%- else -%}
@@ -115,8 +134,11 @@
               v,
               convert_bools=convert_bools,
               convert_nums=convert_nums,
-              type="value",
-              level=level+1) }}
+              indent=indent,
+              level=level+1,
+              quote_all_nums=quote_all_nums,
+              quote_all_strings=quote_all_strings,
+              type="value") }}
 
         {%- if not loop.last -%}
           {{ " " }}
