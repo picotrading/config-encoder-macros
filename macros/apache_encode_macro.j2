@@ -105,7 +105,11 @@
       {#- Value is a boolean -#}
       {{ item | lower }}
 
-    {%- elif item is number %}
+    {%- elif item is number or
+      (convert_nums and (
+        item | int | string == item or
+        item | float | string == item)) or
+      item in ["true", "True", "false", "False"] %}
       {#- Value is a number -#}
       {%- if quote_all_nums -%}
         "{{ item }}"
