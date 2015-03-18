@@ -126,7 +126,7 @@
           "\r" in item or
           item == "" -%}
 
-        "{{ item | replace('"', '\\"') }}"
+        "{{ item | replace("\\", "\\\\") | replace('"', '\\"') }}"
       {%- else -%}
         {{ item }}
       {%- endif %}

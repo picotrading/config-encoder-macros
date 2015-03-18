@@ -51,7 +51,7 @@
     {#- The item is a string -#}
     {{ " " +
        quote +
-       item | replace(quote, "\\" + quote) +
+       item | replace("\\", "\\\\") | replace(quote, "\\" + quote) +
        quote + "\n" }}
 
   {%- else %}
