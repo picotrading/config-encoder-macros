@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+from argparse import RawTextHelpFormatter
 from jinja2 import Template
 from yaml import load
 import argparse
@@ -8,8 +9,15 @@ import sys
 
 def parse_arguments():
     description = 'YAML to TOML converter'
+    epilog = (
+      "Examples:\n"
+      " $ %(prog)s -f apache -v apache_data -y ./vars/apache_test.yaml\n"
+      " $ %(prog)s -f json -v json_data -y ./vars/json_test.yaml")
 
-    parser = argparse.ArgumentParser(description=description)
+    parser = argparse.ArgumentParser(
+        description=description,
+        epilog=epilog,
+        formatter_class=RawTextHelpFormatter)
     parser.add_argument(
         '--format', '-f',
         metavar='FORMAT',
