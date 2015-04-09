@@ -85,7 +85,8 @@
       (convert_nums and (
         item | int | string == item or
         item | float | string == item)) or
-      item in ["true", "True", "false", "False"] %}
+      (convert_bools and item in ["true", "True", "false", "False"]) or
+      item in [True, False] %}
 
     {#- The item is a number or boolean -#}
     {{ item | lower }}{{ "\n" }}

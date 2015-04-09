@@ -18,10 +18,12 @@
       {%- endif -%}
 
       {%- if value is string or value is number -%}
-        {{ (property | upper if ucase_prop else property) ~ delimiter ~ quote ~ value ~ quote ~ "\n" }}
+        {{ (property | upper if ucase_prop else property) ~
+            delimiter ~ quote ~ value ~ quote ~ "\n" }}
       {%- else %}
         {%- for item in value -%}
-          {{ (property | upper if ucase_prop else property) ~ delimiter ~ quote ~ item ~ quote ~ "\n" }}
+          {{ (property | upper if ucase_prop else property) ~
+              delimiter ~ quote ~ item ~ quote ~ "\n" }}
         {%- endfor %}
       {%- endif %}
     {%- endif %}
@@ -42,10 +44,12 @@
       {%- endif %}
       {%- for property, value in options.iteritems() | sort -%}
         {%- if value is string or value is number -%}
-          {{ (property | upper if ucase_prop else property) ~ delimiter ~ quote ~ value ~ quote ~ "\n" }}
+          {{ (property | upper if ucase_prop else property) ~
+              delimiter ~ quote ~ value ~ quote ~ "\n" }}
         {%- else %}
-          {%- for item in value -%}
-            {{ (property | upper if ucase_prop else property) ~ delimiter ~ quote ~ item ~ quote ~ "\n" }}
+          {%- for v in value -%}
+            {{ (property | upper if ucase_prop else property) ~
+                delimiter ~ quote ~ v ~ quote ~ "\n" }}
           {%- endfor %}
         {%- endif %}
       {%- endfor %}

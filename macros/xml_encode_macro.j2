@@ -51,7 +51,7 @@
       {%- endif %}
     {%- endfor %}
 
-  {%- elif item is number or item is string %}
+  {%- elif item is number or item is string or item in [True, False] %}
     {#- The item is a number, string or boolean -#}
 
     {{ item }}

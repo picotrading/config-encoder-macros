@@ -13,7 +13,7 @@
 
   {%- if item is mapping %}
     {#- The item is a dict #}
-    {%- for key, value in item.iteritems() | sort -%}
+    {%- for key, val in item.iteritems() | sort -%}
       {%- if skip_indent and loop.first -%}
         {{ " " }}
       {%- else -%}
@@ -22,12 +22,12 @@
 
       {{ key }}:
 
-      {%- if value is not string and value is not number -%}
+      {%- if val is not string and val is not number -%}
         {{ "\n" }}
       {%- endif -%}
 
       {{ yaml_encode(
-           value,
+           val,
            convert_bools=convert_bools,
            convert_nums=convert_nums,
            indent=indent,
@@ -41,8 +41,8 @@
       (convert_nums and (
         item | int | string == item or
         item | float | string == item)) or
-      (convert_bools and (
-        item in ["true", "True", "false", "False"])) %}
+      (convert_bools and item in ["true", "True", "false", "False"]) or
+      item in [True, False] %}
 
     {#- The item is a number or boolean -#}
     {{ " " ~ item | lower ~ "\n" }}

@@ -35,7 +35,8 @@
 
           {#- Check for empty sub-sections #}
           {%- for i in s["content"] %}
-            {%- if ('options' in i and i['options'] | length > 0) or ('sections' in i and i['sections'] | length > 0) %}
+            {%- if ('options' in i and i['options'] | length > 0) or
+                   ('sections' in i and i['sections'] | length > 0) %}
               {%- if is_empty.append(1) %}{% endif %}
             {%- endif %}
           {%- endfor %}
@@ -85,7 +86,7 @@
 
   {%- elif type == "options" %}
     {%- for o in item -%}
-      {%- for key, val in o.iteritems() -%}
+      {%- for key, val in o.iteritems() | sort -%}
         {{  indent * (level-1) ~ key ~ " " ~
             apache_encode(
               val,
@@ -100,7 +101,7 @@
     {%- endfor %}
 
   {%- elif type == "value" %}
-    {%- if item == True or item == False or
+    {%- if item in [True, False] or
         convert_bools and (item in ["true", "True", "false", "False"]) %}
       {#- Value is a boolean -#}
       {{ item | lower }}
@@ -109,7 +110,8 @@
       (convert_nums and (
         item | int | string == item or
         item | float | string == item)) or
-      item in ["true", "True", "false", "False"] %}
+      (convert_bools and item in ["true", "True", "false", "False"]) or
+      item in [True, False] %}
       {#- Value is a number -#}
       {%- if quote_all_nums -%}
         "{{ item }}"

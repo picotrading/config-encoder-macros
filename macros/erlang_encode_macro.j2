@@ -18,7 +18,7 @@
     {%- if first.append(1) %}{% endif %}
 
     {%- for key, val in item.iteritems() | sort -%}
-      {{ indent * level ~ "{" ~ key ~ ","}}
+      {{ indent * level ~ "{" ~ key ~ "," }}
 
       {%- if val is not mapping -%}
         {{ " " }}
@@ -41,7 +41,8 @@
       (convert_nums and (
         item | int | string == item or
         item | float | string == item)) or
-      item in ["true", "True", "false", "False"] %}
+      (convert_bools and item in ["true", "True", "false", "False"]) or
+      item in [True, False] %}
 
     {#- Item is a value of a number, null or boolean -#}
 
