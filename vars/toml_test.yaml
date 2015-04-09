@@ -1,6 +1,6 @@
 ---
 
-data:
+toml_data:
   title: TOML Example
   owner:
     name: Tom Preston-Werner

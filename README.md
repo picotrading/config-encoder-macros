@@ -41,7 +41,7 @@ from your playbook (e.g. `site.yaml`) as follows:
 - name: Play to test the encoder macros
   hosts: all
   vars:
-    data:
+    ini_data:
       var1: val1
       var2: val2
       section1:
@@ -70,7 +70,7 @@ Where the `templates/test.ini.j2` contains:
 
 {% from "macros/ini_encode_macro.j2" import ini_encode with context -%}
 
-{{ ini_encode(data) }}
+{{ ini_encode(ini_data) }}
 ```
 
 And if you call the playbook:

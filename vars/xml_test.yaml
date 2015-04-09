@@ -1,6 +1,6 @@
 ---
 
-data:
+xml_data:
   root:
     elem1: asd
     elem2:

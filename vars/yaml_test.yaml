@@ -1,6 +1,6 @@
 ---
 
-data:
+yaml_data:
   string: This is a string
   number: 123
   boolean: 'true'

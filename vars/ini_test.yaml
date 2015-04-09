@@ -1,6 +1,6 @@
 ---
 
-data:
+ini_data:
   var1: val1
   var2: val2
   section1:

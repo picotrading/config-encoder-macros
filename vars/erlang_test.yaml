@@ -1,6 +1,6 @@
 ---
 
-data:
+erlang_data:
   - rabbit:
     - tcp_listeners:
       - '"127.0.0.1"': 5672
