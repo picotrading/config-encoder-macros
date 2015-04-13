@@ -1,0 +1,5 @@
+<%-
+  item = @json_data || (json_data.kind_of?(String) ? eval(json_data) : json_data)
+  macro_path = 'macros/json_encode_macro.erb'
+-%>
+<%= ERB.new(IO.read(macro_path), nil, '-', '_erbout1').result(OpenStruct.new().send(:binding)) -%>

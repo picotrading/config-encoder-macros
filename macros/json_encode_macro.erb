@@ -1,0 +1,87 @@
+<%-#
+   # ERB macro which converts Ruby data structure to JSON format
+   #-%>
+<%-
+  _item ||= Array.new
+  convert_bools ||= false
+  convert_nums ||= false
+  indent ||= '  '
+  level ||= 0
+  macro_path ||= 'macros/json_encode_macro.erb'
+-%>
+<%- if item.kind_of?(Hash) -%>
+  <%-# The item is a hash -%>
+  <%--%><%= '{' -%>
+  <%- if item.length > 0 -%>
+    <%--%><%= "\n" -%>
+  <%- end -%>
+  <%- item.sort.each do |key, val| -%>
+    <%--%><%= indent * (level+1) + '"' + key.to_s + '": ' -%>
+    <%-
+      _item.push(item)
+
+      item = val
+      level = level+1
+    -%>
+    <%--%><%= ERB.new(IO.read(macro_path), nil, '-', '_erbout_' +
+    rand(36**20).to_s(36)).result(OpenStruct.new().send(:binding)) -%>
+    <%-
+      level = level-1
+      item = _item.pop()
+    -%>
+    <%- if key == item.keys.sort.last -%>
+      <%--%><%= "\n" -%>
+    <%- else -%>
+      <%--%><%= ",\n" -%>
+    <%- end -%>
+  <%- end -%>
+  <%- if item.length > 0 -%>
+    <%--%><%= indent * level + '}' -%>
+  <%- else -%>
+    <%--%><%= '}' -%>
+  <%- end -%>
+  <%- if level == 0 -%>
+    <%--%><%= "\n" -%>
+  <%- end -%>
+<%- elsif item.kind_of?(Numeric) or
+    (convert_nums and (
+      item.to_i.to_s == item or
+      item.to_f.to_s == item)) or
+    (convert_bools and ['true', 'True', 'false', 'False'].include?(item)) or
+    item.kind_of?(TrueClass) or item.kind_of?(FalseClass) -%>
+  <%-# Item is a value of a number, null or boolean -%>
+  <%--%><%= item.to_s -%>
+<%- elsif item.kind_of?(String) -%>
+  <%-# The item is a string -%>
+  <%--%><%= '"' + item.to_s + '"' -%>
+<%- else -%>
+  <%-# The item is an array -%>
+  <%--%><%= '[' -%>
+  <%- if item.length > 0 -%>
+    <%--%><%= "\n" -%>
+  <%- end -%>
+  <%- item.each do |val| -%>
+    <%--%><%= indent * (level+1) -%>
+    <%-
+      _item.push(item)
+      item = val
+      level = level+1
+    -%>
+    <%--%><%= ERB.new(IO.read(macro_path), nil, '-', '_erbout_' +
+    rand(36**20).to_s(36)).result(OpenStruct.new().send(:binding)) -%>
+    <%-
+      level = level-1
+      item = _item.pop()
+    -%>
+    <%- if val == item.last -%>
+      <%--%><%= "\n" -%>
+    <%- else -%>
+      <%--%><%= ",\n" -%>
+    <%- end -%>
+  <%- end -%>
+  <%- if item.length > 0 -%>
+    <%--%><%= indent * level + ']' -%>
+  <%- else -%>
+    <%--%><%= ']' -%>
+  <%- end -%>
+<%- end -%>

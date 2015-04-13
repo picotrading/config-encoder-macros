@@ -1,0 +1,84 @@
+<%-#
+   # ERB macro which converts Ruby data structure to YAML format
+   #-%>
+<%-
+  _item ||= Array.new
+  _skip_indent ||= Array.new
+  convert_bools ||= false
+  convert_nums ||= false
+  indent ||= '  '
+  level ||= 0
+  macro_path ||= 'macros/yaml_encode_macro.erb'
+  quote ||= '"'
+  skip_indent ||= false
+-%>
+<%- if item.kind_of?(Hash) -%>
+  <%-# The item is a hash -%>
+  <%- item.sort.each do |key, val| -%>
+    <%- if skip_indent and key == item.keys.sort.first -%>
+      <%--%><%= ' ' -%>
+    <%- else -%>
+      <%--%><%= indent * level -%>
+    <%- end -%>
+    <%--%><%= key.to_s + ':' -%>
+    <%- if ! val.kind_of?(String) and
+           ! val.kind_of?(Numeric) and
+           ! val.kind_of?(TrueClass) and
+           ! val.kind_of?(FalseClass)-%>
+      <%--%><%= "\n" -%>
+    <%- end -%>
+    <%-
+      _item.push(item)
+      item = val
+      level = level+1
+    -%>
+    <%--%><%= ERB.new(IO.read(macro_path), nil, '-', '_erbout_' +
+    rand(36**20).to_s(36)).result(OpenStruct.new().send(:binding)) -%>
+    <%-
+      level = level-1
+      item = _item.pop()
+    -%>
+  <%- end -%>
+  <%- if item.length == 0 -%>
+    <%--%><%= indent * level + "{ }\n" -%>
+  <%- end -%>
+<%- elsif item.kind_of?(Numeric) or
+    (convert_nums and (
+      item.to_i.to_s == item or
+      item.to_f.to_s == item)) or
+    (convert_bools and ['true', 'True', 'false', 'False'].include?(item)) or
+    item.kind_of?(TrueClass) or item.kind_of?(FalseClass) -%>
+  <%-# The item is a number or boolean -%>
+  <%--%><%= ' ' + item.to_s.downcase + "\n" -%>
+<%- elsif item.kind_of?(String) -%>
+  <%-# The item is a string -%>
+  <%--%><%= ' ' +
+     quote +
+     item.gsub('\\', '\\\\').gsub(quote, '\\' + quote) +
+     quote + "\n" -%>
+<%- else -%>
+  <%-# The item is an array -%>
+  <%- item.each do |n| -%>
+    <%--%><%= indent * level + '-' -%>
+    <%- if ! n.kind_of?(String) and
+           ! n.kind_of?(Numeric) and
+           ! n.kind_of?(Hash) -%>
+      <%--%><%= "\n" -%>
+    <%- end -%>
+    <%-
+      _item.push(item)
+      _skip_indent.push(skip_indent)
+
+      item = n
+      level = level+1
+      skip_indent = true
+    -%>
+    <%--%><%= ERB.new(IO.read(macro_path), nil, '-', '_erbout_' +
+    rand(36**20).to_s(36)).result(OpenStruct.new().send(:binding)) -%>
+    <%-
+      skip_indent = _skip_indent.pop()
+      level = level-1
+      item = _item.pop()
+    -%>
+  <%- end -%>
+<%- end -%>

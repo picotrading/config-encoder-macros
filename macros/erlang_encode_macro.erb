@@ -1,0 +1,82 @@
+<%-#
+   # ERB macro which converts Ruby data structure to Erlang config format
+   #-%>
+<%-
+  _item ||= Array.new
+  convert_bools ||= false
+  convert_nums ||= false
+  first ||= Array.new
+  indent ||= '  '
+  level ||= 0
+  macro_path ||= 'macros/erlang_encode_macro.erb'
+-%>
+<%- if item.kind_of?(Hash) -%>
+  <%-# The item is a hash #-%>
+  <%--%><%= "\n" -%>
+  <%- first.push(1) -%>
+  <%- item.sort.each do |key, val| -%>
+    <%--%><%= indent * level + '{' + key.to_s + ',' -%>
+    <%- if ! val.kind_of?(Hash) -%>
+      <%--%><%= ' ' -%>
+    <%- end -%>
+    <%-
+      _item.push(item)
+
+      item = val
+      level = level+1
+    -%>
+    <%--%><%= ERB.new(IO.read(macro_path), nil, '-', '_erbout_' +
+    rand(36**20).to_s(36)).result(OpenStruct.new().send(:binding)) -%>
+    <%-
+      level = level-1
+      item = _item.pop()
+    -%>
+    <%--%><%= '}' -%>
+    <%- if key != item.keys.sort.last -%>
+      <%--%><%= ",\n" -%>
+    <%- end -%>
+  <%- end -%>
+<%- elsif item.nil? or item.kind_of?(Numeric) or
+    (convert_nums && (
+      item.to_i.to_s == item or
+      item.to_f.to_s == item)) or
+    (convert_bools && ['true', 'True', 'false', 'False'].include?(item)) or
+    item.kind_of?(TrueClass) or item.kind_of?(FalseClass) -%>
+  <%-# Item is a value of a number, null or boolean #-%>
+  <%--%><%= item.to_s.downcase -%>
+<%- elsif item.kind_of?(String) -%>
+  <%-# The item is a string #-%>
+  <%--%><%= '"' + item.to_s + '"' -%>
+<%- else -%>
+  <%-# The item is an array #-%>
+  <%--%><%= '[' -%>
+  <%- item.each do |val| -%>
+    <%- if val.kind_of?(String) or val.kind_of?(Numeric) -%>
+      <%--%><%= "\n" + indent * (level) -%>
+    <%- end -%>
+    <%-
+      _item.push(item)
+      item = val
+      level = level+1
+    -%>
+    <%--%><%= ERB.new(IO.read(macro_path), nil, '-', '_erbout_' +
+    rand(36**20).to_s(36)).result(OpenStruct.new().send(:binding)) -%>
+    <%-
+      level = level-1
+      item = _item.pop()
+    -%>
+    <%- if val == item.last -%>
+      <%--%><%= "\n" -%>
+    <%- else -%>
+      <%--%><%= ',' -%>
+    <%- end -%>
+  <%- end -%>
+  <%- if item.length > 0 -%>
+    <%--%><%= indent * (level-1 > 0 ? level-1 : 0) + ']' -%>
+  <%- else -%>
+    <%--%><%= ']' -%>
+  <%- end -%>
+  <%- if level == 0 -%>
+    <%--%><%= ".\n" -%>
+  <%- end -%>
+<%- end -%>

@@ -1,0 +1,53 @@
+<%#
+  # ERB macro which converts Ruby data structure to INI format
+  #-%>
+<%-
+  item ||= {}
+  delimiter ||= '='
+  first ||= Array.new
+  quote ||= ''
+  section_is_comment ||= false
+  ucase_prop ||= false -%>
+<%-# First process vars without a section -%>
+<%- item.sort.each do |property, value| -%>
+  <%- if ! value.kind_of?(Hash) -%>
+    <%- if first.length == 0 -%>
+      <%- first.push(1) -%>
+    <%- end -%>
+    <%- if value.kind_of?(String) or value.kind_of?(Numeric) -%>
+      <%--%><%= (ucase_prop ? property.to_s.upcase : property) + delimiter +
+      quote + value.to_s + quote + "\n" -%>
+    <%- else -%>
+      <%- value.each do |i| -%>
+        <%--%><%= (ucase_prop ? property.to_s.upcase : property) + delimiter +
+        quote + i.to_s + quote + "\n" -%>
+      <%- end -%>
+    <%- end -%>
+  <%- end -%>
+<%- end -%>
+<%#- Then process vars with a section -%>
+<%- item.sort.each do |section, options| -%>
+  <%- if options.kind_of?(Hash) -%>
+    <%- if first.length == 0 -%>
+      <%- first.push(1) -%>
+    <%- else -%>
+      <%--%><%= "\n" -%>
+    <%- end -%>
+    <%- if section_is_comment -%>
+      <%--%><%= '# ' + section.to_s + "\n" -%>
+    <%- else -%>
+      <%--%><%= '[' + section.to_s + "]\n" -%>
+    <%- end -%>
+    <%- options.sort.each do |property, value| -%>
+      <%- if value.kind_of?(String) or value.kind_of?(Numeric) -%>
+        <%--%><%= (ucase_prop ? property.to_s.upcase : property) + delimiter +
+        quote + value.to_s + quote + "\n" -%>
+      <%- else -%>
+        <%- value.each do |v| -%>
+          <%--%><%= (ucase_prop ? property.to_s.upcase : property) +
+          delimiter + quote + v.to_s + quote + "\n" -%>
+        <%- end -%>
+      <%- end -%>
+    <%- end -%>
+  <%- end -%>
+<%- end -%>

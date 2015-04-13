@@ -1,0 +1,172 @@
+<%-#
+   # ERB macro which converts Ruby data structure to Apache format
+   #-%>
+<%-
+  _item ||= Array.new
+  _type ||= Array.new
+  _is_empty ||= Array.new
+  convert_bools ||= false
+  convert_nums ||= false
+  indent ||= '  '
+  level ||= 0
+  macro_path ||= 'macros/apache_encode_macro.erb'
+  quote_all_nums ||= false
+  quote_all_strings ||= false
+  type ||= 'sections'
+-%>
+<%- if type == 'sections' -%>
+  <%- item['content'].each do |c| -%>
+    <%-# First check if this section has options -%>
+    <%- if c.include?('options') -%>
+      <%-
+        _item.push(item)
+        _type.push(type)
+        item = c['options']
+        type = 'options'
+        level = level+1
+      -%>
+      <%--%><%= ERB.new(IO.read(macro_path), nil, '-', '_erbout_' +
+      rand(36**20).to_s(36)).result(OpenStruct.new().send(:binding)) -%>
+      <%-
+        item = _item.pop()
+        type = _type.pop()
+        level = level-1
+      -%>
+    <%- end -%>
+    <%- is_empty = [] -%>
+    <%-# Check if this section has some sub-sections -%>
+    <%- if c.include?('sections') -%>
+      <%- c['sections'].each do |s| -%>
+        <%-# Check for empty sub-sections -%>
+        <%- s['content'].each do |i| -%>
+          <%- if (i.include?('options') and i['options'].length > 0) or
+                 (i.include?('sections') and i['sections'].length > 0) -%>
+            <%- is_empty.push(1) -%>
+          <%- end -%>
+        <%- end -%>
+        <%- if is_empty.length > 0 -%>
+          <%--%><%= indent * level + '<' + s['name'] -%>
+          <%- if s.include?('param') -%>
+            <%--%><%= ' ' -%>
+            <%-
+              _item.push(item)
+              _type.push(type)
+              item = s['param']
+              type = 'value'
+              level = level+1
+            -%>
+            <%--%><%= ERB.new(IO.read(macro_path), nil, '-', '_erbout_' +
+            rand(36**20).to_s(36)).result(OpenStruct.new().send(:binding)) -%>
+            <%-
+              item = _item.pop()
+              type = _type.pop()
+              level = level-1
+            -%>
+          <%- end -%>
+          <%--%><%= ">\n" -%>
+          <%-
+            _item.push(item)
+            _type.push(type)
+            item = s
+            type = 'sections'
+            level = level+1
+          -%>
+          <%--%><%= ERB.new(IO.read(macro_path), nil, '-', '_erbout_' +
+          rand(36**20).to_s(36)).result(OpenStruct.new().send(:binding)) -%>
+          <%-
+            item = _item.pop()
+            type = _type.pop()
+            level = level-1
+          -%>
+          <%--%><%= indent * level + '</' + s['name'] + ">\n" -%>
+          <%- if c != item['content'].last -%>
+            <%--%><%= "\n" -%>
+          <%- end -%>
+        <%- end -%>
+      <%- end -%>
+    <%- end -%>
+    <%- if c != item['content'].last and
+        (
+          c.include?('options') and c['options'].length > 0 or
+          (
+            c.include?('sections') and c['sections'].length > 0 and
+            is_empty.length > 0
+          )
+        )
+    -%>
+      <%--%><%= "\n" -%>
+    <%- end -%>
+  <%- end -%>
+<%- elsif type == 'options' -%>
+  <%- item.each do |o| -%>
+    <%- o.sort.each do |key, val| -%>
+      <%--%><%=  indent * (level-1) + key + ' ' -%>
+      <%-
+        _item.push(item)
+        _type.push(type)
+        item = val
+        type = 'value'
+        level = level+1
+      -%>
+      <%--%><%= ERB.new(IO.read(macro_path), nil, '-', '_erbout_' +
+      rand(36**20).to_s(36)).result(OpenStruct.new().send(:binding)) -%>
+      <%-
+        item = _item.pop()
+        type = _type.pop()
+        level = level-1
+      -%>
+      <%--%><%= "\n" -%>
+    <%- end -%>
+  <%- end -%>
+<%- elsif type == 'value' -%>
+  <%- if item.kind_of?(TrueClass) or item.kind_of?(FalseClass) or
+      convert_bools and ['true', 'True', 'false', 'False'].include?(item) -%>
+    <%-# Value is a boolean -%>
+    <%--%><%= item.to_s.downcase -%>
+  <%- elsif item.kind_of?(Numeric) or
+    (convert_nums and (
+      item.to_i.to_s == item or
+      item.to_f.to_s == item)) or
+    (convert_bools and ['true', 'True', 'false', 'False'].include?(item)) or
+    item.kind_of?(TrueClass) or item.kind_of?(FalseClass) -%>
+    <%-# Value is a number -%>
+    <%- if quote_all_nums -%>
+      <%--%><%= '"' + item.to_s + '"' -%>
+    <%- else -%>
+      <%--%><%= item -%>
+    <%- end -%>
+  <%- elsif item.kind_of?(String) -%>
+    <%-# Value is a string -%>
+    <%- if quote_all_strings or
+        item.include?(' ') or
+        item.include?("\t") or
+        item.include?("\n") or
+        item.include?("\r") or
+        item == '' -%>
+      <%--%><%= '"' + item.to_s.gsub('\\', '\\\\').gsub('"', '\\"') + '"' -%>
+    <%- else -%>
+      <%--%><%= item -%>
+    <%- end -%>
+  <%- elsif ! item.kind_of?(Hash) -%>
+    <%-# Value is an array -%>
+    <%- item.each do |v| -%>
+      <%-
+        _item.push(item)
+        _type.push(type)
+        item = v
+        type = 'value'
+        level = level+1
+      -%>
+      <%--%><%= ERB.new(IO.read(macro_path), nil, '-', '_erbout_' +
+      rand(36**20).to_s(36)).result(OpenStruct.new().send(:binding)) -%>
+      <%-
+        item = _item.pop()
+        type = _type.pop()
+        level = level-1
+      -%>
+      <%- if v != item.last -%>
+        <%--%><%= ' ' -%>
+      <%- end -%>
+    <%- end -%>
+  <%- end -%>
+<%- end -%>

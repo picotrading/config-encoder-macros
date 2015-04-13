@@ -1,0 +1,103 @@
+<%-#
+   # ERB macro which converts Ruby data structure to XML format
+   #-%>
+<%-
+  _item ||= Array.new
+  _prev_list ||= Array.new
+  _prevkey ||= Array.new
+  first ||= Array.new
+  indent ||= '  '
+  level ||= 0
+  macro_path ||= 'macros/xml_encode_macro.erb'
+  prevkey ||= nil
+-%>
+<%- if item.kind_of?(Hash) -%>
+  <%-# The item is a hash -%>
+  <%- prev_list = [0] -%>
+  <%- item.sort.each do |key, val| -%>
+    <%- if first.length > 0 and prev_list[0] == 0 -%>
+      <%--%><%= "\n" -%>
+    <%- end -%>
+    <%- first.push(0) -%>
+    <%-
+      prev_list.insert(0, 0)
+      prev_list.delete_at(1)
+    -%>
+    <%- if val == nil -%>
+      <%--%><%= indent * level + '<' + key.to_s + '/>' -%>
+    <%- elsif val.kind_of?(Array) -%>
+      <%-# Only if val is an array -%>
+      <%-
+        _item.push(item)
+        _prevkey.push(prevkey)
+        _prev_list.push(prev_list)
+        prev_list = [0]
+        prevkey = key
+        item = val
+      -%>
+      <%--%><%= ERB.new(IO.read(macro_path), nil, '-', '_erbout_' +
+      rand(36**20).to_s(36)).result(OpenStruct.new().send(:binding)) -%>
+      <%-
+        prevkey = _prevkey.pop()
+        prev_list = _prev_list.pop()
+        item = _item.pop()
+      -%>
+      <%-
+        prev_list.insert(0, 1)
+        prev_list.delete_at(1)
+      -%>
+    <%- else -%>
+      <%--%><%= indent * level + '<' + key.to_s + '>' -%>
+      <%-
+        _item.push(item)
+        _prevkey.push(prevkey)
+        _prev_list.push(prev_list)
+        prev_list = [0]
+        prevkey = key
+        item = val
+        level = level+1
+      -%>
+      <%--%><%= ERB.new(IO.read(macro_path), nil, '-', '_erbout_' +
+      rand(36**20).to_s(36)).result(OpenStruct.new().send(:binding)) -%>
+      <%-
+        prevkey = _prevkey.pop()
+        prev_list = _prev_list.pop()
+        item = _item.pop()
+        level = level-1
+      -%>
+      <%- if val.kind_of?(Hash) or val.kind_of?(Array) -%>
+        <%--%><%= indent * level -%>
+      <%- end -%>
+      <%--%><%= '</' + key.split(" ")[0] + '>' -%>
+      <%- if key == item.keys.sort.last -%>
+        <%--%><%= "\n" -%>
+      <%- end -%>
+    <%- end -%>
+  <%- end -%>
+<%- elsif item.kind_of?(Numeric) or item.kind_of?(String) or
+    item.kind_of?(TrueClass) or item.kind_of?(FalseClass) -%>
+  <%-# The item is a number, string or boolean -%>
+  <%--%><%= item -%>
+<%- elsif item == nil -%>
+  <%-# Item is a value of an empty element -%>
+<%- else -%>
+  <%-# The item is an array -%>
+  <%- item.each do |e| -%>
+    <%--%><%= indent * level + '<' + prevkey + '>' -%>
+      <%-
+        _item.push(item)
+        item = e
+        level = level+1
+      -%>
+      <%--%><%= ERB.new(IO.read(macro_path), nil, '-', '_erbout_' +
+      rand(36**20).to_s(36)).result(OpenStruct.new().send(:binding)) -%>
+      <%-
+        item = _item.pop()
+        level = level-1
+      -%>
+    <%- if ! e.kind_of?(String) and ! e.kind_of?(Numeric) and e != nil -%>
+      <%--%><%= indent * level -%>
+    <%- end -%>
+    <%--%><%= '</' + prevkey.split(' ')[0] + '>' + "\n" -%>
+  <%- end -%>
+<%- end -%>

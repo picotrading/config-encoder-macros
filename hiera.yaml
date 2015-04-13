@@ -1,0 +1,12 @@
+:backends:
+  - yaml
+:hierarchy:
+  - apache_test
+  - erlang_test
+  - ini_test
+  - json_test
+  - toml_test
+  - xml_test
+  - yaml_test
+:yaml:
+  :datadir: ./vars

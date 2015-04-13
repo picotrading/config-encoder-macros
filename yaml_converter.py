@@ -8,7 +8,7 @@ import sys
 
 
 def parse_arguments():
-    description = 'YAML to TOML converter'
+    description = 'YAML converter'
     epilog = (
       "Examples:\n"
       " $ %(prog)s -f apache -v apache_data -y ./vars/apache_test.yaml\n"
@@ -19,22 +19,22 @@ def parse_arguments():
         epilog=epilog,
         formatter_class=RawTextHelpFormatter)
     parser.add_argument(
-        '--format', '-f',
+        '-f', '--format',
         metavar='FORMAT',
         choices=['apache', 'erlang', 'ini', 'json', 'toml', 'xml', 'yaml'],
         required=True,
-        help='Output format')
+        help='output format')
     parser.add_argument(
-        '--path', '-p',
+        '-p', '--path',
         metavar='PATH',
         default='.',
-        help='Path to the macros directory (default: .)')
+        help='path to the macros directory (default: .)')
     parser.add_argument(
-        '--var', '-v',
+        '-v', '--var',
         metavar='NAME',
-        help='Read data from certain YAML variable')
+        help='read data from certain YAML variable')
     parser.add_argument(
-        '--yaml', '-y',
+        '-y', '--yaml',
         metavar='FILE',
         dest='yaml_fh',
         type=argparse.FileType('r'),
@@ -63,7 +63,7 @@ def main():
 
     # Create Jinja2 template object
     t = Template(template_text)
-    # Convert the YAML data to INI format
+    # Convert the YAML data to the final format
     encode_method = getattr(t.module, '%s_encode' % args.format)
     output = encode_method(yaml_data)
 

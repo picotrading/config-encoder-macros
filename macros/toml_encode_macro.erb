@@ -1,0 +1,175 @@
+<%-#
+   # ERB macro which converts Ruby data structure to TOML format
+   #-%>
+<%-
+  _item ||= Array.new
+  _prevkey ||= Array.new
+  _prevtype ||= Array.new
+  _old_prevkey ||= Array.new
+  _old_level ||= Array.new
+  convert_bools ||= false
+  convert_nums ||= false
+  first ||= Array.new
+  indent ||= '  '
+  level ||= 0
+  macro_path ||= 'macros/toml_encode_macro.erb'
+  quote ||= '"'
+  prevkey ||= ''
+  prevtype ||= ''
+-%>
+<%- if item.kind_of?(Hash) -%>
+  <%-# The item is a hash -%>
+  <%-# First process all strings, numbers, booleans and arrays -%>
+  <%- item.sort.each do |key, val| -%>
+    <%- if val.kind_of?(String) or
+        val.kind_of?(Numeric) or
+        val.kind_of?(TrueClass) or val.kind_of?(FalseClass) or
+        (
+          ! val.kind_of?(Hash) and
+          val.length > 0 and
+          ! val[0].kind_of?(Hash)) -%>
+      <%-# The value is a string, a number, or an array -%>
+      <%--%><%= indent * level + key.to_s + ' = ' -%>
+      <%-
+        _item.push(item)
+        _prevkey.push(prevkey)
+        _prevtype.push(prevtype)
+        item = val
+        prevtype = ''
+      -%>
+      <%--%><%= ERB.new(IO.read(macro_path), nil, '-', '_erbout_' +
+      rand(36**20).to_s(36)).result(OpenStruct.new().send(:binding)) -%>
+      <%-
+        prevkey = _prevkey.pop()
+        prevtype = _prevtype.pop()
+        item = _item.pop()
+      -%>
+      <%- first.push(1) -%>
+    <%- end -%>
+  <%- end -%>
+  <%-# Then process all data structures -%>
+  <%- item.sort.each do |key, val| -%>
+    <%- if ! val.kind_of?(String) and
+        ! val.kind_of?(Numeric) and
+        ! val.kind_of?(TrueClass) and ! val.kind_of?(FalseClass) and
+        (val.kind_of?(Hash) or val[0].kind_of?(Hash)) -%>
+      <%-
+        old_prevkey = prevkey
+        old_level = level
+      -%>
+      <%- if val.kind_of?(Hash) -%>
+        <%-# The value is a hash -%>
+        <%- if prevkey != '' and prevkey != key -%>
+          <%- level = level + 1 -%>
+        <%- end -%>
+        <%- if prevkey == '' -%>
+          <%- prevkey = key -%>
+        <%- else -%>
+          <%- prevkey = prevkey + '.' + key -%>
+        <%- end -%>
+        <%- if first.length > 0 -%>
+          <%--%><%= "\n" -%>
+        <%- end -%>
+        <%--%><%= indent * level + '[' + prevkey + ']' + "\n" -%>
+      <%- elsif val[0].kind_of?(Hash) -%>
+        <%-# The value is a table -%>
+        <%- if prevkey == '' -%>
+          <%- prevkey = key -%>
+        <%- else -%>
+          <%- prevkey = prevkey + '.' + key.to_s -%>
+        <%- end -%>
+        <%- level = level + 1 -%>
+      <%- end -%>
+      <%-
+        _item.push(item)
+        _prevkey.push(prevkey)
+        _prevtype.push(prevtype)
+        _old_prevkey.push(old_prevkey)
+        _old_level.push(old_level)
+        item = val
+        prevtype = ''
+      -%>
+      <%--%><%= ERB.new(IO.read(macro_path), nil, '-', '_erbout_' +
+      rand(36**20).to_s(36)).result(OpenStruct.new().send(:binding)) -%>
+      <%-
+        prevkey = _prevkey.pop()
+        prevtype = _prevtype.pop()
+        old_prevkey = _old_prevkey.pop()
+        old_level = _old_level.pop()
+        item = _item.pop()
+      -%>
+      <%- if val.kind_of?(Hash) and prevkey != '' and prevkey != key or
+          val[0].kind_of?(Hash) -%>
+        <%- level = level - 1 -%>
+      <%- end -%>
+      <%-
+        prevkey = old_prevkey
+        level = old_level
+      -%>
+      <%- first.push(1) -%>
+    <%- end -%>
+  <%- end -%>
+<%- elsif item.kind_of?(Numeric) or
+    (convert_nums and (
+      item.to_i.to_s == item or
+      item.to_f.to_s == item)) or
+    (convert_bools and ['true', 'True', 'false', 'False'].include?(item)) or
+    item.kind_of?(TrueClass) or item.kind_of?(FalseClass) -%>
+  <%-# The item is a number or boolean -%>
+  <%--%><%= item.to_s.downcase -%>
+  <%- if prevtype != 'array' -%>
+    <%--%><%= "\n" -%>
+  <%- end -%>
+<%- elsif item.kind_of?(String) -%>
+  <%-# The item is a string -%>
+  <%--%><%= quote + item.to_s.gsub("\n", "\\n").gsub("\t", "\\t") + quote -%>
+  <%- if prevtype != 'array' -%>
+    <%--%><%= "\n" -%>
+  <%- end -%>
+<%- else -%>
+  <%-# The item is an array -%>
+  <%- if item[0].kind_of?(Hash) -%>
+    <%- item.each do |d| -%>
+      <%--%><%= "\n" + indent * level + '[[' + prevkey.to_s + ']]' + "\n" -%>
+      <%-
+        _item.push(item)
+        _prevkey.push(prevkey)
+        _prevtype.push(prevtype)
+        item = d
+        prevtype = 'array'
+      -%>
+      <%--%><%= ERB.new(IO.read(macro_path), nil, '-', '_erbout_' +
+      rand(36**20).to_s(36)).result(OpenStruct.new().send(:binding)) -%>
+      <%-
+        prevkey = _prevkey.pop()
+        prevtype = _prevtype.pop()
+        item = _item.pop()
+      -%>
+    <%- end -%>
+  <%- else -%>
+    <%--%><%= '[' -%>
+    <%- item.each do |d| -%>
+      <%-
+        _item.push(item)
+        _prevkey.push(prevkey)
+        _prevtype.push(prevtype)
+        item = d
+        prevtype = 'array'
+      -%>
+      <%--%><%= ERB.new(IO.read(macro_path), nil, '-', '_erbout_' +
+      rand(36**20).to_s(36)).result(OpenStruct.new().send(:binding)) -%>
+      <%-
+        prevkey = _prevkey.pop()
+        prevtype = _prevtype.pop()
+        item = _item.pop()
+      -%>
+      <%- if d != item.last -%>
+        <%--%><%= ', ' -%>
+      <%- end -%>
+    <%- end -%>
+    <%--%><%= ']' -%>
+    <%- if prevtype != 'array' -%>
+      <%--%><%= "\n" -%>
+    <%- end -%>
+  <%- end -%>
+<%- end -%>
