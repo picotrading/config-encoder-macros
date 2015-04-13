@@ -91,13 +91,22 @@ def main
       formats.join(', '))
   end
 
-  # Check if the YAML file exists
-  abort('ERROR: YAML file not found.') unless File.exist?(args.yaml_file)
-
-  if args.var.nil?
-    item = YAML.load_file(args.yaml_file)
+  if args.yaml_file.nil?
+    # Read data from pipeline
+    yaml_input = ARGF.read
+    yaml_load_fnc = YAML.method(:load)
   else
-    item = YAML.load_file(args.yaml_file)[args.var]
+    # Check if the YAML file exists
+    abort('ERROR: YAML file not found.') unless File.exist?(args.yaml_file)
+    yaml_input = args.yaml_file
+    yaml_load_fnc = YAML.method(:load_file)
+  end
+
+  # Convert the YAML data to the Ruby data structure
+  if args.var.nil?
+    item = yaml_load_fnc.call(yaml_input)
+  else
+    item = yaml_load_fnc.call(yaml_input)[args.var]
   end
 
   # Check if the macro file exists
