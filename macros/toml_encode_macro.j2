@@ -9,23 +9,26 @@
       first=[],
       indent="  ",
       level=0,
-      prevkey="") %}
+      prevkey="",
+      prevtype="",
+      quote='"') %}
 
   {%- if item is mapping %}
     {#- The item is a dict #}
 
-    {#- First process all strings, numbers and lists #}
-    {%- for key, value in item.iteritems() | sort -%}
-      {%- if value is string or
-          value is number or
+    {#- First process all strings, numbers, booleans and lists #}
+    {%- for key, val in item.iteritems() | sort -%}
+      {%- if val is string or
+          val is number or
+          val in [True, False] or
           (
-            value is not mapping and
-            value | length > 0 and
-            value[0] is not mapping) %}
+            val is not mapping and
+            val | length > 0 and
+            val[0] is not mapping) %}
 
         {#- The value is a string, a number, or a list -#}
         {{ indent * level }}{{ key }}{{ " = " }}{{ toml_encode(
-            value,
+            val,
             convert_bools=convert_bools,
             convert_nums=convert_nums,
             first=first,
@@ -37,18 +40,19 @@
     {%- endfor %}
 
     {#- Then process all data structures #}
-    {%- for key, value in item.iteritems() | sort %}
-      {%- if value is not string and
-          value is not number and
+    {%- for key, val in item.iteritems() | sort %}
+      {%- if val is not string and
+          val is not number and
+          val not in [True, False] and
           (
-            value is mapping or
-            value[0] is mapping) %}
+            val is mapping or
+            val[0] is mapping) %}
 
         {%- set old_prevkey = prevkey %}
         {%- set old_level = level %}
 
-        {%- if value is mapping %}
-          {#- The value is a dict #}
+        {%- if val is mapping %}
+          {#- The val is a dict #}
           {%- if prevkey != "" and prevkey != key %}
             {%- set level = level + 1 %}
           {%- endif %}
@@ -60,14 +64,14 @@
           {%- endif -%}
 
           {{ indent * level }}[{{ prevkey }}]{{ "\n" }}
-        {%- elif value[0] is mapping %}
-          {#- The value is a table #}
+        {%- elif val[0] is mapping %}
+          {#- The val is a table #}
           {%- set prevkey = (key if prevkey == "" else prevkey + "." + key) %}
-          {%- set level = level +1 %}
+          {%- set level = level + 1 %}
         {%- endif -%}
 
         {{ toml_encode(
-            value,
+            val,
             convert_bools=convert_bools,
             convert_nums=convert_nums,
             first=first,
@@ -89,11 +93,19 @@
       item in [True, False] %}
 
     {#- The item is a number or boolean -#}
-    {{ item | lower }}{{ "\n" }}
+    {{ item | lower }}
+
+    {%- if prevtype != "list" -%}
+      {{ "\n" }}
+    {%- endif -%}
 
   {%- elif item is string %}
     {#- The item is a string -#}
-    "{{ item | replace("\n", "\\n") | replace("\t", "\\t") }}"{{ "\n" }}
+    {{ quote ~ item | replace("\n", "\\n") | replace("\t", "\\t") ~ quote }}
+
+    {%- if prevtype != "list" -%}
+      {{ "\n" }}
+    {%- endif -%}
 
   {%- else %}
     {#- The item is a list #}
@@ -108,7 +120,29 @@
             level=level) }}
       {%- endfor %}
     {%- else -%}
-      {{ item }}{{ "\n" }}
+      {{ "[" }}
+
+      {%- for d in item -%}
+        {{ toml_encode(
+            d,
+            convert_bools=convert_bools,
+            convert_nums=convert_nums,
+            first=first,
+            indent=indent,
+            level=level,
+            prevtype="list") }}
+
+        {%- if not loop.last -%}
+          {{ ", " }}
+        {%- endif %}
+      {%- endfor -%}
+
+      {{ "]" }}
+
+      {%- if prevtype != "list" -%}
+        {{ "\n" }}
+      {%- endif -%}
+
     {%- endif %}
   {%- endif %}
 {%- endmacro %}

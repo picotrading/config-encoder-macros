@@ -289,6 +289,15 @@ following parameter should be addressed by a keyword (e.g. `indent="  "` where
   > Defines the name of the previous key in the recursive macro calls. It's used
   > only internally in the macro.
 
+- `prevtype=""`
+
+  > Defines the type of the previous item in the recursive macro calls. It's used
+  > only internally in the macro.
+
+- `quote='"'`
+
+  > Allows to set the *value* quoting. Use `quote="'"` or `quote='"'`.
+
 
 ### `xml_encode()`
 - `item`
@@ -421,11 +430,11 @@ import sys
 
 # Load the YAML data to Python data structure
 yaml_fh = open('vars/ini_test.yaml')
-yaml_data = load(yaml_fh)
+yaml_struct = load(yaml_fh)
 yaml_fh.close()
 
-# Take only the content of the data variable
-yaml_data = yaml_data['data']
+# Take only the content of the ini_data variable
+yaml_struct = yaml_struct['ini_data']
 
 # Read Jinja2 template as text
 template_fh = open('macros/ini_encode_macro.j2')
@@ -435,7 +444,7 @@ template_fh.close()
 # Create Jinja2 template object
 t = Template(template_text)
 # Convert the YAML data to INI format
-output = t.module.ini_encode(yaml_data).encode('utf8')
+output = t.module.ini_encode(yaml_struct).encode('utf8')
 
 # Print the result
 sys.stdout.write(output)
@@ -444,7 +453,7 @@ sys.stdout.write(output)
 Or you can use the `yaml_converter.py`:
 
 ```
-$ ./yaml_converter.py -f json -v data -y ./vars/json_test.yaml
+$ ./yaml_converter.py -f ini -v ini_data -y ./vars/ini_test.yaml
 ```
 
 
