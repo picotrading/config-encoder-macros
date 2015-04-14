@@ -5,6 +5,24 @@ Set of Jinja2 and ERB macros which help to encode Python and Ruby data structure
 into a different file format.
 
 
+---
+
+* [Motivation](#motivation)
+* [Supported formats](#supported-formats)
+* Examples
+  * [Ansible example](#ansible-example)
+  * [Puppet example](#puppet-example)
+* [Macros parameters](#macros-parameters)
+* [Limitations](#limitations)
+* Programming support
+  * [Python example](#python-example)
+  * [Ruby example](#ruby-example)
+* [License](#license)
+* [Author](#author)
+
+---
+
+
 Motivation
 ----------
 
