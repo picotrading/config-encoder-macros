@@ -1,0 +1,126 @@
+{#
+ # Jinja2 macro which converts Python data structure to Logstash format
+ #}
+
+{%- macro logstash_encode(
+      item,
+      convert_bools=false,
+      convert_nums=false,
+      indent="  ",
+      level=0,
+      prevtype="") %}
+
+  {%- if item is mapping %}
+    {#- The item is a dict -#}
+
+    {%- if prevtype in ["value", "value_hash", "array"] -%}
+      {{ "{\n" }}
+    {%- endif -%}
+
+    {%- for key, val in item.iteritems() | sort -%}
+      {%- if key[0] == ":" -%}
+        {{ indent * level ~ key[1:] ~ " {\n" }}{{ logstash_encode(
+          val,
+          convert_bools=convert_bools,
+          convert_nums=convert_nums,
+          indent=indent,
+          level=level+1,
+          prevtype="block") }}
+
+        {%- if loop.last -%}
+          {%- if val is string or
+              val is number or
+              val in [True, False] or
+              (val is mapping and val.keys()[0][0] != ":") -%}
+            {{ "\n" ~ indent * level ~  "}\n" }}
+          {%- else -%}
+            {{ indent * level ~  "}\n" }}
+          {%- endif %}
+        {%- endif %}
+      {%- else -%}
+        {{ indent * level }}
+
+        {%- if prevtype == "value_hash" -%}
+          {{ '"' ~ key ~ '" => ' }}
+        {%- else -%}
+          {{ key ~ " => " }}
+        {%- endif -%}
+
+        {{ logstash_encode(
+          val,
+          convert_bools=convert_bools,
+          convert_nums=convert_nums,
+          indent=indent,
+          level=level+1,
+          prevtype=("value_hash" if val is mapping else "value")) }}
+      {%- endif %}
+
+      {%- if not loop.last and
+          (
+            val is string or
+            val is number or
+            item in [True, False]) -%}
+        {{ "\n" }}
+      {%- endif %}
+    {%- endfor %}
+
+    {%- if prevtype in ["value", "value_hash", "array"] -%}
+      {{ "\n" ~ indent * (level-1) ~ "}" }}
+
+      {%- if prevtype in ["value", "value_array"] -%}
+        {{ "\n" }}
+      {%- endif %}
+    {%- endif %}
+
+  {%- elif item is number or
+      (convert_nums and (
+        item | int | string == item or
+        item | float | string == item)) or
+      (convert_bools and item in ["true", "True", "false", "False"]) or
+      item in [True, False] %}
+
+    {#- Item is a value of a number or boolean -#}
+
+    {{ item | lower }}
+
+  {%- elif item is string %}
+    {#- The item is a string -#}
+
+    {{ '"' ~ item ~ '"' }}
+
+  {%- else %}
+    {#- The item is a list -#}
+
+    {%- for val in item %}
+      {%- if val is mapping and val.keys()[0][0] == ":" -%}
+        {#- value is a block -#}
+
+        {{ logstash_encode(
+            val,
+            convert_bools=convert_bools,
+            convert_nums=convert_nums,
+            indent=indent,
+            level=level,
+            prevtype="block") }}
+      {%- else %}
+        {%- if loop.first -%}
+          {{ "[\n" }}
+        {%- endif -%}
+
+        {{ indent * level }}{{ logstash_encode(
+            val,
+            convert_bools=convert_bools,
+            convert_nums=convert_nums,
+            indent=indent,
+            level=level+1,
+            prevtype="array") }}
+
+        {%- if loop.last -%}
+          {{ "\n" ~ indent * (level-1) ~ "]\n" }}
+        {%- else -%}
+          {{ ",\n" }}
+        {%- endif %}
+      {%- endif %}
+    {%- endfor -%}
+  {%- endif %}
+{%- endmacro %}

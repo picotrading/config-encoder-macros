@@ -44,6 +44,7 @@ Supported formats
 - Erlang config format
 - INI
 - JSON
+- Logstash
 - TOML
 - XML
 - YAML
@@ -367,6 +368,45 @@ following parameter should be addressed by a keyword (e.g. `indent="  "` where
 - `macro_path='macros/json_encode_macro.erb'`
 
   > Relative or absolute path to the macro. It's used only in ERB macros.
+
+
+### `logstash_encode()`
+
+- `item`
+
+  > Variable holding the input data for the macro.
+
+- `convert_bools=false`
+
+  > Indicates whether Boolean values presented as a string should be converted
+  > to a real Booblean value. For example `var1: 'True'` would be represented
+  > as a string but using the `convert_bools=true` will convert it to a Boolean
+  > like it would be defined like this: `var1: true`. You can also use the YAML
+  > type casting by using `!!bool` in front of your value (e.g.
+  > `!!bool "true"`).
+
+- `convert_nums=false`
+
+  > Indicates whether number presented as a string should be converted to
+  > number. For example `var1: '123'` would be represented as a string but
+  > using the `convert_nums=true` will convert it to a number like it would
+  > be defined like this: `var1: 123`. You can also use the YAML type casting
+  > to convert string to number (e.g. `!!int "1234"`, `!!float "3.14"`).
+
+- `indent="  "`
+
+  > Defines the indentation unit.
+
+- `level=0`
+
+  > Indicates the initial level of the indentation. Value `0` starts indenting
+  > from the beginning of the line. Setting the value to higher than `0`
+  > indents the content by `indent * level`.
+
+- `prevtype=""`
+
+  > Defines the type of the previous item in the recursive macro calls. It's used
+  > only internally in the macro.
 
 
 ### `toml_encode()`

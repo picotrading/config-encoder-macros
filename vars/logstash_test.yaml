@@ -1,0 +1,33 @@
+---
+
+logstash_data:
+    - :input:
+        - :file:
+            path: /var/log/messages
+            type: syslog
+        - :file:
+            path: /var/log/apache/access.log
+            type: apache
+    - :filter:
+        - ':if [type] == "apache"':
+            - ':if [status] =~ /^5\d\d/':
+                :nagios:
+                    codes: plain
+                    workers: 1
+            - ':else if [status] =~ /^4\d\d/':
+                :elasticsearch:
+                    xxx:
+                        aaa: bbb
+                        ccc: ddd
+                    hosts:
+                        - es-server1
+                        - es-server2
+                    query: "type:start AND operation:%{[opid]}"
+                    fields:
+                        - "@timestamp"
+                        - started
+    - :output:
+        - :file:
+            path: /var/log/%{type}.%{+yyyy.MM.dd.HH}
+        - :statsd:
+            increment: apache.%{[response][status]}

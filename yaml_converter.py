@@ -21,7 +21,7 @@ def parse_arguments():
     parser.add_argument(
         '-f', '--format',
         metavar='FORMAT',
-        choices=['apache', 'erlang', 'ini', 'json', 'toml', 'xml', 'yaml'],
+        choices=['apache', 'erlang', 'ini', 'json', 'logstash', 'toml', 'xml', 'yaml'],
         required=True,
         help='output format')
     parser.add_argument(

@@ -37,6 +37,14 @@ node default {
     content => template('test.json.erb'),
   }
 
+  ### Logstash
+  $json_data = hiera('logstash_data')
+
+  file { '/tmp/test.logstash' :
+    ensure  => present,
+    content => template('test.logstash.erb'),
+  }
+
   ### TOML
   $toml_data = hiera('toml_data')
 

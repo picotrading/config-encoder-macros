@@ -60,6 +60,18 @@
       tags:
         - json
 
+- name: Logstash encode example
+  hosts: all
+  vars_files:
+    - vars/logstash_test.yaml
+  tasks:
+    - name: Create test.logstash file
+      template:
+        src: templates/test.logstash.j2
+        dest: /tmp/test.logstash
+      tags:
+        - logstash
+
 - name: TOML encode example
   hosts: all
   vars_files:
