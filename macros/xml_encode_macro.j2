@@ -23,7 +23,7 @@
       {%- if prev_list.insert(0, 0) and prev_list.remove(1) %}{% endif %}
 
       {%- if val is none -%}
-        {{ indent * level }}<{{ key }} />
+        {{ indent * level ~ "<" ~ key ~ " />\n" }}
       {%- elif val is sequence and val is not string and val is not mapping -%}
         {#- Only if val is a list -#}
         {{ xml_encode(

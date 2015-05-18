@@ -24,7 +24,7 @@
       prev_list.delete_at(1)
     -%>
     <%- if val == nil -%>
-      <%--%><%= indent * level + '<' + key.to_s + '/>' -%>
+      <%--%><%= indent * level + '<' + key.to_s + '/>\n' -%>
     <%- elsif val.kind_of?(Array) -%>
       <%-# Only if val is an array -%>
       <%-
