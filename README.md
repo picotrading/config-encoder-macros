@@ -659,6 +659,11 @@ Or you can use the `yaml_converter.rb`:
 $ ./yaml_converter.rb -f ini -v ini_data -y ./vars/ini_test.yaml
 ```
 
+Dependencies
+------------
+
+- `jinja2` v2.6+ (for Ansible macros only)
+
 
 License
 -------
